@@ -15,7 +15,7 @@ Every project here follows the same discipline: **start from a real user problem
 | [ResearchOS](#researchos--ai-research-management-suite) | Research-management suite with an AI co-pilot ("Jira and Confluence for research") | Grounded idea scoring, plan generation, human-approved AI edits | Live app · pitch deck · user feedback · prototype |
 | [YouTube Answer Mode](#youtube-answer-mode--search-that-finds-the-moment) | New YouTube Search feature that jumps to the exact moment that answers a question | Moment-level ranking, explainable matches, feedback loop | 3-phase research · PRD · case study · prototype |
 | [Alcove](#alcove--an-emotionally-intelligent-ai-companion) | Voice-first AI companion that remembers your story | Long-term memory, context assembly, safety layer | PRD · prototype |
-| [IITM Knowledge Assistant](#iitm-knowledge-assistant--citation-first-rag) | Citation-first RAG assistant for IIT Madras student information | Hybrid retrieval, reranking, grounding gate, evals | PRD |
+| [IITM Knowledge Assistant](#iitm-knowledge-assistant--citation-first-rag) | Citation-first RAG assistant for IIT Madras student information | Hybrid retrieval, reranking, grounding gate, evals | PRD · live prototype |
 | [Execution Policy Intelligence](#execution-policy-intelligence--lseg-hackathon-idea) | LSEG hackathon proposal for evidence-backed FX execution policy management | "Statistics determine, AI explains, human decides" | Leadership pitch deck |
 
 ---
@@ -133,6 +133,7 @@ Every project here follows the same discipline: **start from a real user problem
 
 📂 [`IIT Madras RAG Knowledge Assistant/`](IIT%20Madras%20RAG%20Knowledge%20Assistant/)
 - 📘 [Product Requirements Document](IIT%20Madras%20RAG%20Knowledge%20Assistant/Assignment3_C52_Saurav_Dasgupta.pdf)
+- 🚀 Live prototype: [rag-whisperer-36.lovable.app](https://rag-whisperer-36.lovable.app/) (built in Lovable on seven synthetic test documents)
 
 ---
 
