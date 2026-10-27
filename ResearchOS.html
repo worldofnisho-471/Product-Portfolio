@@ -1,0 +1,1640 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>ResearchOS</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a shared lab workbench. Project header with who is here, a section stepper, one working panel per section. */
+:root {
+  --paper: #f4f5f8;
+  --surface: #ffffff;
+  --ink: #171a2c;
+  --muted: #5b6177;
+  --line: #dde0e9;
+  --accent: #2c46d4;
+  --accent-soft: #e8ebfc;
+  --good: #1d7f54;
+  --good-soft: #e3f3eb;
+  --warn: #9a6512;
+  --warn-soft: #fbf0dc;
+  --bad: #b8382f;
+  --bad-soft: #fbe7e5;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #11131b; --surface: #191c27; --ink: #e7e9f3; --muted: #9ca2b8; --line: #2a2e3d;
+    --accent: #8d9cff; --accent-soft: #232a52; --good: #5cc796; --good-soft: #17312a;
+    --warn: #e2b05e; --warn-soft: #34291a; --bad: #f08a80; --bad-soft: #3a1f1f; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #11131b; --surface: #191c27; --ink: #e7e9f3; --muted: #9ca2b8; --line: #2a2e3d;
+  --accent: #8d9cff; --accent-soft: #232a52; --good: #5cc796; --good-soft: #17312a;
+  --warn: #e2b05e; --warn-soft: #34291a; --bad: #f08a80; --bad-soft: #3a1f1f; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink); font: 15px/1.55 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 20px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1.02rem; }
+p { margin: 0; }
+.label { font: 500 .72rem/1.3 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+a { color: var(--accent); }
+
+header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.mark { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); display: grid; place-items: center; color: var(--surface); font: 700 15px var(--f-display); }
+.proj { display: grid; gap: 2px; min-width: 0; }
+.example-tag { display: inline-block; font: 500 .7rem var(--f-mono); background: var(--warn-soft); color: var(--warn); padding: 2px 8px; border-radius: 99px; margin-left: 6px; vertical-align: middle; }
+
+.steps { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+.step { flex: 1 0 auto; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; cursor: pointer; font: 500 .92rem var(--f-body); color: var(--muted); text-align: left; }
+.step .n { font: 500 .78rem var(--f-mono); width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--line); flex: none; }
+.step.done .n { background: var(--good-soft); color: var(--good); border-color: transparent; }
+.step[aria-selected="true"] { color: var(--ink); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.step[aria-selected="true"] .n { background: var(--accent); color: var(--surface); border-color: transparent; }
+.step:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 20px; min-width: 0; }
+.panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.panel-head > div { display: grid; gap: 4px; max-width: 62ch; }
+
+.btn { font: 600 .9rem var(--f-body); padding: 10px 16px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.btn:disabled { opacity: .55; cursor: progress; }
+.btn.small { padding: 6px 11px; font-size: .82rem; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+form.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field.wide { grid-column: 1 / -1; }
+.field.row { display: flex; }
+input, textarea, select { font: inherit; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; width: 100%; }
+textarea { min-height: 96px; resize: vertical; }
+
+.status { font: 500 .85rem var(--f-mono); color: var(--muted); }
+.status.err { color: var(--bad); }
+.notice { background: var(--warn-soft); color: var(--warn); border-radius: 10px; padding: 10px 14px; font-size: .88rem; }
+
+/* Idea check result */
+.verdict-grid { display: grid; grid-template-columns: 180px 1fr; gap: 24px; align-items: center; }
+.ring { width: 160px; height: 160px; position: relative; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring .val { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+.ring .num { font: 700 2.4rem/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.subs { display: grid; gap: 14px; min-width: 0; }
+.sub { display: grid; gap: 4px; }
+.sub-top { display: flex; justify-content: space-between; gap: 8px; font-weight: 600; font-size: .92rem; }
+.sub-top span:last-child { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.bar { height: 6px; background: var(--paper); border-radius: 99px; overflow: hidden; border: 1px solid var(--line); }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font: 600 .8rem var(--f-body); padding: 4px 10px; border-radius: 99px; }
+.pill.good { background: var(--good-soft); color: var(--good); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.cols > section { display: grid; gap: 10px; align-content: start; min-width: 0; }
+ul.clean { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.lit a { display: block; padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; text-decoration: none; color: var(--ink); background: var(--paper); }
+.lit a span { color: var(--accent); font-size: .82rem; display: block; }
+.lit { display: grid; gap: 8px; }
+
+/* Board */
+.board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 980px) { .board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.col { border: 2px dashed transparent; transition: border-color .12s, background-color .12s; }
+.col.drop { border-color: var(--accent); background: var(--accent-soft); }
+.col-blocked .col-head .label { color: var(--bad); }
+.card[draggable="true"] { cursor: grab; }
+.card.dragging { opacity: .45; }
+.card.blocked { border-color: var(--bad); }
+.blocker { font-size: .82rem; color: var(--bad); background: var(--bad-soft); border-radius: 6px; padding: 5px 8px; }
+.drop-hint { font-size: .85rem; border: 1px dashed var(--line); border-radius: 8px; padding: 14px 10px; text-align: center; }
+.col { background: var(--paper); border-radius: 12px; padding: 12px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.col-head { display: flex; justify-content: space-between; align-items: center; }
+.count { font: 500 .78rem var(--f-mono); color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 8px; text-align: left; font: inherit; color: inherit; cursor: pointer; width: 100%; }
+.card:hover { border-color: var(--accent); }
+.card .ms { font: 500 .7rem var(--f-mono); color: var(--accent); text-transform: uppercase; letter-spacing: .05em; }
+.card .t { font-weight: 600; font-size: .93rem; line-height: 1.35; }
+.crit { font-size: .82rem; color: var(--muted); border-left: 2px solid var(--line); padding-left: 8px; }
+.card .meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 8px; font: .75rem var(--f-mono); color: var(--muted); }
+.card .move { width: auto; padding: 4px 8px; font: 500 .78rem var(--f-body); background: var(--surface); cursor: pointer; }
+.card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card.new { border-style: dashed; border-color: var(--accent); }
+
+/* Results */
+.log { display: grid; gap: 12px; }
+.entry { border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 6px; }
+.entry-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: center; }
+
+/* Next steps */
+.recs { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.rec { border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 10px; align-content: start; }
+.rec .newtasks { display: grid; gap: 6px; }
+.rec .nt { font-size: .85rem; background: var(--paper); border-radius: 8px; padding: 8px 10px; }
+.diag { background: var(--accent-soft); border-radius: 12px; padding: 16px; display: grid; gap: 8px; }
+
+/* Task editor sheet */
+.overlay { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; background: color-mix(in srgb, var(--ink) 45%, transparent);
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.sheet { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; width: 100%; max-width: 580px; max-height: 100%; overflow: auto; padding: 20px; display: grid; gap: 16px; }
+.btn.danger { color: var(--bad); border-color: var(--bad); }
+.linked { display: grid; gap: 6px; }
+.linked button { text-align: left; }
+
+/* Review changes */
+.chg { font-size: .85rem; display: grid; gap: 2px; }
+.chg del { color: var(--bad); }
+.chg ins { color: var(--good); text-decoration: none; font-weight: 500; }
+.tag { font: 500 .7rem var(--f-mono); text-transform: uppercase; letter-spacing: .05em; color: var(--accent); }
+
+/* Notes */
+.notes-tab { margin-left: 10px; }
+.notes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 18px; align-items: start; }
+.note-list { display: grid; gap: 8px; }
+.note-item { display: grid; gap: 4px; text-align: left; font: inherit; color: inherit; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; cursor: pointer; width: 100%; }
+.note-item[aria-current="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--surface); }
+.note-item .top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.note-item p { font-size: .84rem; color: var(--muted); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.filters select { width: auto; max-width: 100%; padding: 8px 10px; font-size: .86rem; }
+.fsearch { flex: 1 1 220px; min-width: 0; padding: 8px 12px; font-size: .9rem; }
+.fcount { font-size: .82rem; color: var(--muted); flex-basis: 100%; }
+mark { background: var(--warn-soft); color: inherit; border-radius: 3px; padding: 0 1px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 500 .8rem var(--f-body); padding: 5px 11px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+.kind { font: 500 .68rem var(--f-mono); text-transform: uppercase; letter-spacing: .05em; padding: 2px 7px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
+.note-list { max-width: 820px; }
+.note-card { border: 1px solid var(--line); border-radius: 12px; background: var(--paper); min-width: 0; }
+.note-card.open { background: var(--surface); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.note-head { display: grid; gap: 4px; width: 100%; text-align: left; font: inherit; color: inherit; background: none; border: 0; padding: 13px 14px; cursor: pointer; border-radius: 12px; }
+.note-head .top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.note-head .right { display: flex; align-items: center; gap: 10px; flex: none; }
+.chev { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; color: var(--muted); border: 1px solid var(--line); background: var(--surface); }
+.chev svg { transition: transform .18s ease; }
+.note-head:hover .chev { color: var(--accent); border-color: var(--accent); }
+.note-head[aria-expanded="true"] .chev { color: var(--accent); }
+.note-head[aria-expanded="true"] .chev svg { transform: rotate(90deg); }
+@media (prefers-reduced-motion: reduce) { .chev svg { transition: none; } }
+.note-head .preview { font-size: .86rem; color: var(--muted); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.note-open { display: grid; gap: 12px; padding: 0 14px 14px; min-width: 0; }
+.note-card > .note-open:first-child { padding-top: 14px; }
+.note-body { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.65; }
+.saved { background: var(--good-soft); color: var(--good); border-radius: 8px; padding: 8px 12px; font-size: .88rem; font-weight: 500; }
+.note-editor textarea { min-height: 260px; font-family: var(--f-body); line-height: 1.6; }
+@media (max-width: 720px) { .notes { grid-template-columns: 1fr; } }
+
+.empty { border: 1px dashed var(--line); border-radius: 12px; padding: 22px; display: grid; gap: 10px; justify-items: start; }
+
+@media (max-width: 720px) {
+  .board { grid-template-columns: 1fr; }
+  .verdict-grid { grid-template-columns: 1fr; justify-items: start; }
+  .panel { padding: 16px; }
+  .step { flex: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bar i { transition: width .6s ease; }
+}
+
+/* Collaboration */
+.people { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.avs { display: flex; }
+.av { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--paper); object-fit: cover; background: var(--line); margin-left: -8px; flex: none; display: inline-block; }
+.avs .av:first-child { margin-left: 0; }
+.av.sm { width: 20px; height: 20px; border-width: 1px; margin-left: 0; }
+.av.md { width: 34px; height: 34px; margin-left: 0; border-color: var(--surface); }
+.here { font-size: .85rem; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); display: inline-block; flex: none; }
+.role { font: 500 .7rem var(--f-mono); padding: 4px 9px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 10px; z-index: 40; font-size: .9rem; max-width: calc(100% - 32px); box-shadow: 0 6px 24px rgb(0 0 0 / .18); }
+.who-due { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px; font-size: .78rem; color: var(--muted); }
+.assignee { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.due { font-family: var(--f-mono); font-size: .74rem; }
+.due.late { color: var(--bad); font-weight: 600; }
+.comments { display: grid; gap: 12px; }
+.comment { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; align-items: start; }
+.comment .av { width: 24px; height: 24px; margin: 0; border-width: 1px; }
+.comment .line1 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; font-size: .85rem; }
+.comment .line1 strong { font-weight: 600; }
+.comment .when { font: .72rem var(--f-mono); color: var(--muted); }
+.comment p { font-size: .9rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.linkbtn { background: none; border: 0; padding: 0; font: inherit; font-size: .75rem; color: var(--muted); text-decoration: underline; cursor: pointer; }
+.composer { display: grid; gap: 8px; }
+.composer textarea { min-height: 64px; }
+.team-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.team-grid > section { display: grid; gap: 12px; min-width: 0; }
+.member { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.member .sub2 { font-size: .82rem; color: var(--muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.feed { list-style: none; margin: 0; padding: 0; display: grid; }
+.feed li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: .88rem; }
+.feed li .when { font: .72rem var(--f-mono); color: var(--muted); display: block; }
+.roles { width: 100%; border-collapse: collapse; font-size: .86rem; }
+.roles th, .roles td { text-align: left; padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.roles th { font: 500 .7rem var(--f-mono); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.table-wrap { overflow-x: auto; }
+.danger-zone { border: 1px solid var(--bad); border-radius: 12px; padding: 16px; display: grid; gap: 10px; }
+.ro { background: var(--accent-soft); color: var(--accent); border-radius: 10px; padding: 10px 14px; font-size: .88rem; }
+@media (max-width: 720px) { .team-grid { grid-template-columns: 1fr; } }
+
+/* Dashboard */
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.kpi { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+.kpi .big { font: 700 1.9rem/1.1 var(--f-display); font-variant-numeric: tabular-nums; }
+.kpi .big small { font: 500 .9rem var(--f-body); color: var(--muted); margin-left: 4px; }
+.kpi .note { font-size: .82rem; color: var(--muted); }
+.kpi.warn { border-color: var(--warn); }
+.kpi.bad { border-color: var(--bad); }
+.kpi.good { border-color: var(--good); }
+.dash-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.dash-grid > section { display: grid; gap: 12px; min-width: 0; }
+.ms-row { display: grid; gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.ms-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ms-top strong { font-size: .95rem; }
+.stack { display: flex; height: 12px; border-radius: 99px; overflow: hidden; background: var(--paper); border: 1px solid var(--line); }
+.stack i { display: block; height: 100%; }
+.stack i + i { border-left: 2px solid var(--surface); }
+.s-done { background: var(--good); }
+.s-running { background: var(--accent); }
+.s-blocked { background: var(--bad); }
+.s-todo { background: var(--line); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .78rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.ms-sub { font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.score { width: 100%; border-collapse: collapse; font-size: .86rem; }
+.score th, .score td { text-align: left; padding: 9px 10px 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.score th { font: 500 .7rem var(--f-mono); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.score td.crit-cell { color: var(--muted); }
+.pill.none { background: var(--paper); color: var(--muted); border: 1px solid var(--line); }
+.load-row { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: .88rem; padding: 6px 0; }
+.load-row .av { width: 24px; height: 24px; margin: 0; border-width: 1px; }
+.attn { display: grid; gap: 8px; }
+.attn button { text-align: left; font: inherit; color: inherit; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; cursor: pointer; display: grid; gap: 2px; }
+.attn button:hover { border-color: var(--accent); }
+.attn .why { font-size: .8rem; }
+.charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.chart-card { border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.donut-wrap { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.donut { position: relative; width: 150px; height: 150px; flex: none; }
+.donut svg { width: 100%; height: 100%; display: block; }
+.donut svg circle[stroke-dasharray] { transition: opacity .15s; }
+.donut svg:hover circle[stroke-dasharray] { opacity: .55; }
+.donut svg circle[stroke-dasharray]:hover { opacity: 1; }
+.donut-c { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.donut-c strong { font: 700 1.6rem/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.donut-c span { font: 500 .7rem var(--f-mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-top: 4px; }
+.chart-legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; min-width: 150px; flex: 1; }
+.chart-legend li { display: grid; grid-template-columns: 12px 1fr auto 42px; gap: 8px; align-items: center; font-size: .88rem; }
+.chart-legend i { width: 12px; height: 12px; border-radius: 3px; }
+.chart-legend b { font-variant-numeric: tabular-nums; }
+.chart-legend .ms-sub { text-align: right; }
+.vbars { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; padding-left: 26px; padding-top: 24px; }
+.vgrid { position: absolute; left: 0; right: 0; top: 24px; height: 150px; pointer-events: none; }
+.vgrid span { position: absolute; left: 0; right: 0; border-bottom: 1px solid var(--line); font: .7rem var(--f-mono); color: var(--muted); line-height: 1; transform: translateY(50%); padding-bottom: 0; }
+.vgrid span { text-indent: 0; }
+.vbar { display: grid; gap: 8px; justify-items: center; text-align: center; min-width: 0; }
+.vcol { height: 150px; width: 100%; max-width: 64px; position: relative; z-index: 1; }
+.vcol b { position: absolute; left: 0; right: 0; font-variant-numeric: tabular-nums; font-size: .9rem; text-align: center; line-height: 1; }
+.vcol i { position: absolute; left: 0; right: 0; bottom: 0; display: block; border-radius: 4px 4px 0 0; }
+.vl { font-size: .8rem; color: var(--muted); line-height: 1.25; }
+.hbars { display: grid; gap: 10px; }
+.hbar { display: grid; grid-template-columns: 110px minmax(0, 1fr) 28px; gap: 10px; align-items: center; font-size: .86rem; }
+.hbar .track { height: 14px; background: var(--paper); border-radius: 4px; overflow: hidden; }
+.hbar .track i { display: block; height: 100%; border-radius: 0 4px 4px 0; min-width: 4px; }
+.hbar b { text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 860px) { .charts { grid-template-columns: 1fr; } }
+@media (max-width: 860px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dash-grid { grid-template-columns: 1fr; } }
+
+/* Projects home + commercial case */
+.crumb { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); cursor: pointer; letter-spacing: inherit; text-transform: inherit; }
+.crumb:hover { text-decoration: underline; }
+.proj-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.proj-card { display: grid; gap: 8px; align-content: start; text-align: left; font: inherit; color: inherit; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; cursor: pointer; min-width: 0; }
+.proj-card:hover { border-color: var(--accent); }
+.proj-card .pt { font: 600 1.05rem/1.3 var(--f-display); }
+.pbar { height: 8px; background: var(--paper); border: 1px solid var(--line); border-radius: 99px; overflow: hidden; display: block; }
+.pbar i { display: block; height: 100%; background: var(--good); border-radius: 99px; }
+.commercial { display: grid; gap: 14px; border-top: 1px solid var(--line); padding-top: 18px; }
+.assumes { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.assume { border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.assume.ok { border-color: var(--good); }
+.assume.no { border-color: var(--bad); }
+.assume-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.assume a { overflow-wrap: anywhere; }
+.ev-rec { display: grid; gap: 2px; font-size: .85rem; background: var(--paper); border-radius: 8px; padding: 8px 10px; overflow-wrap: anywhere; }
+.ev-form { display: grid; gap: 6px; }
+.ev-form input { padding: 7px 10px; font-size: .85rem; }
+.econ { border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 10px; }
+.econ-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.econ-out { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.econ-cell { background: var(--paper); border-radius: 10px; padding: 10px 12px; display: grid; gap: 2px; }
+.econ-cell strong { font: 700 1.2rem var(--f-display); font-variant-numeric: tabular-nums; }
+.econ-cell.neg strong { color: var(--bad); }
+.dirs { display: grid; gap: 14px; border-top: 1px solid var(--line); padding-top: 18px; }
+.dirs.low { border: 1px solid var(--warn); border-radius: 12px; padding: 16px; background: color-mix(in srgb, var(--warn-soft) 40%, transparent); }
+.dirs.collapsed { gap: 6px; }
+.dir-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.dir { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.dir-top { display: flex; justify-content: space-between; align-items: baseline; }
+.dir-score strong { font: 700 1.6rem/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.subbars { display: grid; gap: 6px; }
+.subbar { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 28px; gap: 8px; align-items: center; font-size: .8rem; color: var(--muted); }
+.subbar .track { height: 8px; background: var(--paper); border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
+.subbar .track i { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
+.subbar b { text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
+.corpus { display: grid; gap: 10px; border-top: 1px solid var(--line); padding-top: 18px; }
+.pubs { list-style: none; margin: 0; padding: 0; display: grid; }
+.pub { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.pub > div { display: grid; gap: 2px; min-width: 0; }
+.pub-add summary { cursor: pointer; font-weight: 600; font-size: .9rem; color: var(--accent); margin-bottom: 10px; }
+.pub-add form { margin-bottom: 14px; }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">R</div>
+      <div class="proj">
+        <span class="label" id="crumb">ResearchOS</span>
+        <h1 id="projTitle">ResearchOS</h1>
+      </div>
+    </div>
+    <div class="people" id="people"></div>
+  </header>
+
+  <p id="aiNotice" class="notice" hidden>Live AI runs when this page is opened in Claude. Everything else works without it.</p>
+  <p id="roNotice" class="ro" hidden></p>
+
+  <nav class="steps" role="tablist" aria-label="Project sections">
+    <button class="step" role="tab" data-step="idea" type="button"><span class="n">1</span>Idea check</button>
+    <button class="step" role="tab" data-step="plan" type="button"><span class="n">2</span>Research plan</button>
+    <button class="step" role="tab" data-step="results" type="button"><span class="n">3</span>Log results</button>
+    <button class="step" role="tab" data-step="dash" type="button"><span class="n">4</span>Dashboard</button>
+    <button class="step" role="tab" data-step="next" type="button"><span class="n">5</span>Next steps</button>
+    <button class="step notes-tab" role="tab" data-step="notes" type="button"><span class="n">≡</span>Notes</button>
+    <button class="step" role="tab" data-step="team" type="button"><span class="n">◎</span>Team</button>
+  </nav>
+
+  <main id="view" class="panel" role="tabpanel"></main>
+</div>
+
+<script>
+/* ---------- Constants and state ---------- */
+const STATUSES = ["To do", "Running", "Blocked", "Done"];
+const KINDS = ["Protocol", "Observation", "Decision", "Literature"];
+const STEP_NAMES = { dash: "Dashboard", idea: "Idea check", plan: "Research plan", results: "Log results", next: "Next steps", notes: "Notes", team: "Team" };
+const BLANK_IDEA = { title: "", text: "", field: "", goal: "Academic paper" };
+
+let db = null, user = null, room = null, sample = null;
+let mode = "loading";               // loading | live | nodb
+let me = { id: null, owner: false, role: "Viewer" };
+let canWrite = true, canWriteKnown = false, canAdmin = false, canComment = true;
+let pWrite = true, pAdmin = false, platRole = "Viewer";
+const ROLES = ["Lead", "Researcher", "Observer"];
+const ROLE_INFO = {
+  Lead: "Everything: run the idea check, generate the plan, run AI reviews and approve their changes, start a new project.",
+  Researcher: "Add, edit, move and assign tasks; log results; write notes; comment. AI changes wait for a Lead to approve them.",
+  Observer: "Read everything and comment on tasks. Can't change the plan, results or notes."
+};
+function roleOf(id) {
+  if (id === me.id) return myRole();
+  const m = state.members.find(x => x.id === id);
+  if (m && m.owner) return "Lead";
+  if (!m) return "Observer";
+  const r = state.roles.find(x => x.id === id);
+  return r && ROLES.includes(r.role) ? r.role : "Researcher";
+}
+function myRole() {
+  if (me.owner) return "Lead";
+  if (!pWrite) return "Observer";
+  const r = state.roles.find(x => x.id === me.id);
+  return r && ROLES.includes(r.role) ? r.role : "Researcher";
+}
+function recompute() {
+  me.role = myRole();
+  canWrite = pWrite && me.role !== "Observer";
+  canComment = pWrite;
+  canAdmin = me.role === "Lead" && (pAdmin || me.owner);
+}
+let metaReady = false;
+const state = { idea: { ...BLANK_IDEA }, assessment: null, milestones: [], review: null, addedRecs: [], tasks: [], results: [], notes: [], comments: [], activity: [], members: [], roles: [], evidence: [], econ: null, corpus: [], directions: null };
+const all = { projects: [], tasks: [], results: [], notes: [], comments: [], evidence: [], econ: [], directions: [] };
+let curPid = null;
+const knownPids = new Set();
+const pidOf = x => x.projectId || "meta";
+const curProj = () => all.projects.find(p => p.id === curPid) || null;
+function derive() {
+  const p = curProj();
+  if (curPid && !p && metaReady && knownPids.has(curPid)) curPid = null;
+  state.idea = { ...BLANK_IDEA, ...((p && p.idea) || {}) };
+  state.assessment = (p && p.assessment) || null;
+  state.milestones = [...((p && p.milestones) || [])];
+  state.review = (p && p.review) || null;
+  state.addedRecs = [...((p && p.addedRecs) || [])];
+  for (const k of ["tasks", "results", "notes", "comments", "evidence"]) state[k] = all[k].filter(x => pidOf(x) === curPid);
+  state.econ = all.econ.find(x => x.id === curPid) || null;
+  state.directions = all.directions.find(x => x.id === curPid) || null;
+}
+function rememberProject(pid) { try { if (pid) localStorage.setItem("researchos-current-project", pid); } catch {} }
+function recalledProject() { try { return localStorage.getItem("researchos-current-project"); } catch { return null; } }
+function openProject(pid) {
+  curPid = pid; rememberProject(pid); derive();
+  selectedTask = null; selectedNote = null; noteEditing = false; taskQ = ""; ownerF = "any"; msF = "all"; updF = "any"; noteQ = ""; noteTaskF = "all"; noteFilter = "All";
+  setStep(state.tasks.length ? "dash" : "idea");
+}
+function goHome() { curPid = null; derive(); setStep("home"); }
+let peers = [];
+const people = {};
+let step = null, tasksLoaded = false, selectedTask = null, selectedNote = null, noteFilter = "All", newNoteTask = null, noteEditing = false, noteFlash = "", dragId = null;
+let taskQ = "", ownerF = "any", msF = "all", updF = "any", noteQ = "", noteTaskF = "all";
+let aiBusy = null, aiError = null, editorHook = null;
+const dirty = new Set();
+
+/* ---------- Small helpers ---------- */
+const view = document.getElementById("view");
+const today = () => new Date().toISOString().slice(0, 10);
+const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const taskTitle = id => (state.tasks.find(t => t.id === id) || {}).title;
+const clamp = v => Math.max(0, Math.min(100, Math.round(Number(v) || 0)));
+const clean = o => JSON.parse(JSON.stringify(o));
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const fmtDate = d => d ? `${Number(d.slice(8, 10))} ${MONTHS[Number(d.slice(5, 7)) - 1]}` : "";
+const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+function ago(ts) {
+  if (!ts) return "";
+  const s = (Date.now() - ts) / 1000;
+  if (s < 60) return "just now";
+  if (s < 3600) return Math.floor(s / 60) + " min ago";
+  if (s < 86400) return Math.floor(s / 3600) + " h ago";
+  return fmtDate(new Date(ts).toISOString().slice(0, 10));
+}
+const el = (tag, attrs = {}, ...kids) => {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === "class") n.className = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else if (k === "text") n.textContent = v;
+    else n.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of kids.flat()) if (c != null && c !== false) n.append(c.nodeType ? c : document.createTextNode(String(c)));
+  return n;
+};
+const pillClass = s => ({ Pursue: "good", "On track": "good", Yes: "good", Met: "good", Refine: "warn", Adjust: "warn", Partly: "warn", "At risk": "warn", Rethink: "bad", Pivot: "bad", No: "bad", Blocked: "bad", "Off track": "bad", "Not tested": "none", "Not started": "none" }[s] || "warn");
+const errCopy = code => ({
+  not_granted: "AI is turned off for this page. Allow Claude to use it from the page's permissions to run live.",
+  sampling_disabled: "Claude isn't available for this account.",
+  rate_limited: "Too many requests. Wait a minute, then try again.",
+  invalid_json: "The AI answer came back in the wrong shape. Try again.",
+  refused: "Claude declined this request. Try rewording the idea.",
+  session_expired: "Your session expired. Sign in again, then retry."
+}[code] || "Something went wrong reaching Claude. Try again.");
+const lock = (root, allowed) => { if (!allowed) root.querySelectorAll("input, textarea, select, button").forEach(x => { x.disabled = true; }); return root; };
+
+/* People */
+function fullName(id) { if (!id) return "Someone"; const p = people[id]; return (p && p.name) || (id === me.id ? "You" : "Someone"); }
+function nameOf(id) { return id && id === me.id ? "You" : fullName(id); }
+function avatar(id, cls = "av") {
+  const p = id && people[id];
+  if (!p) return el("span", { class: cls, "aria-hidden": "true" });
+  const i = el("img", { class: cls, alt: "", src: p.avatarUrl });
+  if (p.color) i.style.background = p.color;
+  return i;
+}
+function want(ids) {
+  if (!user) return;
+  const missing = [...new Set(ids.filter(x => x && !people[x]))];
+  if (!missing.length) return;
+  missing.forEach(x => { people[x] = people[x] || null; });
+  user.profiles(missing).then(ps => { for (const [k, v] of Object.entries(ps)) people[k] = v; schedule(); }).catch(() => {});
+}
+function onlineIds() { return [...new Set(peers.filter(p => p.kind === "viewer" && p.by).map(p => p.by))]; }
+function peerStep(id) { const p = peers.find(x => x.by === id && x.presence && x.presence.step); return p ? p.presence.step : null; }
+
+/* Toast */
+let toastTimer;
+function toast(msg) {
+  let t = document.getElementById("toast");
+  if (!t) { t = el("div", { id: "toast", class: "toast", role: "status" }); document.body.append(t); }
+  t.textContent = msg; t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 4500);
+}
+
+/* ---------- Writes to the shared project ---------- */
+async function save(p) {
+  try { await p; return true; }
+  catch (e) {
+    const c = e && e.code;
+    if (c === "invalid_argument" && !canWriteKnown) { pWrite = false; recompute(); schedule(); }
+    toast(c === "invalid_argument" ? "You don't have permission to change this. Ask the project owner for more access."
+      : c === "quota_exceeded" ? "The project has run out of space. Delete old notes or comments, then try again."
+      : c === "revoked" ? "Your access to this project changed. Reload the page."
+      : "Couldn't save that change. Check your connection and try again.");
+    return false;
+  }
+}
+const stamp = () => ({ updatedBy: me.id, updatedAt: Date.now() });
+const metaBody = over => { const p = curProj() || {}; return clean({ idea: state.idea, assessment: state.assessment, milestones: state.milestones, review: state.review, addedRecs: state.addedRecs, createdAt: p.createdAt || null, createdBy: p.createdBy || null, ...over, ...stamp() }); };
+const putMeta = over => save(db.doc("project/" + curPid).set(metaBody(over)));
+function putTask(t) { const { id, ...rest } = t; return save(db.doc("tasks/" + id).set(clean({ projectId: curPid, ...rest, ...stamp() }))); }
+const patchTask = (id, f) => save(db.doc("tasks/" + id).update(clean({ ...f, ...stamp() })));
+const logAct = (text, target, pid) => { if (db) db.collection("activity").add(clean({ who: me.id, text, target: target || null, projectId: pid || curPid, ts: Date.now() })).catch(() => {}); };
+async function wipe(colls) {
+  for (const c of colls) await Promise.all(all[c].filter(x => pidOf(x) === curPid).map(x => db.doc(c + "/" + x.id).delete().catch(() => {})));
+}
+function allMilestones() {
+  const out = [...state.milestones];
+  state.tasks.forEach(t => { if (t.milestone && !out.includes(t.milestone)) out.push(t.milestone); });
+  return out;
+}
+
+/* ---------- Live subscriptions ---------- */
+let pending = false, memberDone = false;
+function schedule() {
+  if (pending) return;
+  pending = true;
+  requestAnimationFrame(() => { pending = false; render(true); if (editorHook) editorHook(); });
+}
+function dbErr(e) { if (e && e.code === "revoked") toast("Your access to this project changed. Reload the page."); }
+function subscribe() {
+  const sub = (key, query, sort) => query.onSnapshot(s => {
+    const rows = s.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (sort) rows.sort(sort);
+    if (key in all) { all[key] = rows; if (key === "projects") { metaReady = true; rows.forEach(x => knownPids.add(x.id)); } derive(); } else state[key] = rows;
+    if (key === "tasks") tasksLoaded = true;
+    if (key === "members") ensureMember();
+    if (key === "roles" || key === "members") recompute();
+    schedule();
+  }, dbErr);
+  sub("projects", db.collection("project"), (a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+  sub("evidence", db.collection("evidence"));
+  sub("econ", db.collection("econ"));
+  sub("directions", db.collection("directions"));
+  sub("corpus", db.collection("corpus"));
+  sub("tasks", db.collection("tasks"), (a, b) => (a.order || 0) - (b.order || 0));
+  sub("results", db.collection("results"), (a, b) => (a.ts || 0) - (b.ts || 0));
+  sub("notes", db.collection("notes"));
+  sub("comments", db.collection("comments"), (a, b) => (a.ts || 0) - (b.ts || 0));
+  sub("activity", db.collection("activity").orderBy("ts", "desc").limit(40));
+  sub("members", db.collection("members"));
+  sub("roles", db.collection("roles"));
+}
+function ensureMember() {
+  if (memberDone || !pWrite || !me.id) return;
+  memberDone = true;
+  const ex = state.members.find(m => m.id === me.id);
+  if (ex && ex.platform === platRole && !!ex.owner === !!me.owner && Date.now() - (ex.lastSeen || 0) < 6 * 3600e3) return;
+  db.doc("members/" + me.id).set({ platform: platRole, owner: !!me.owner, lastSeen: Date.now(), joined: (ex && ex.joined) || Date.now() })
+    .catch(e => { if (e && e.code === "invalid_argument" && !canWriteKnown) { pWrite = false; recompute(); schedule(); } });
+}
+
+/* ---------- Render ---------- */
+function setStep(s) { step = s; if (room) room.presence({ step: s, project: curPid }).catch(() => {}); render(); }
+document.querySelectorAll(".step").forEach(b => b.addEventListener("click", () => setStep(b.dataset.step)));
+view.addEventListener("input", e => { if (e.target.id) dirty.add(e.target.id); });
+view.addEventListener("change", e => { if (e.target.id && !e.target.classList.contains("move")) dirty.add(e.target.id); });
+
+function header() {
+  const t = document.getElementById("projTitle");
+  const home = step === "home" || !curPid;
+  t.textContent = home ? (metaReady ? "Research projects" : "ResearchOS") : (state.idea.title || "Untitled project");
+  const crumb = document.getElementById("crumb");
+  crumb.replaceChildren(home || !metaReady ? "ResearchOS" : el("button", { class: "crumb", type: "button", onclick: goHome }, "← All projects"));
+  document.querySelector(".steps").hidden = home || mode !== "live";
+  const done = { idea: !!state.assessment, plan: state.tasks.length > 0, results: state.results.length > 0, next: !!state.review, notes: state.notes.length > 0, team: state.members.length > 1 };
+  document.querySelectorAll(".step").forEach(b => {
+    b.setAttribute("aria-selected", b.dataset.step === step ? "true" : "false");
+    b.classList.toggle("done", !!done[b.dataset.step]);
+  });
+  const ro = document.getElementById("roNotice");
+  ro.hidden = !(mode === "live" && !canWrite);
+  ro.textContent = !pWrite ? "You have view-only access, so you can read everything but not change or comment. Ask the project owner to share the page with you as an Editor."
+    : "You're an Observer on this project. You can read everything and comment on tasks. The project owner can change your role on the Team tab.";
+  const box = document.getElementById("people");
+  const ids = onlineIds();
+  box.replaceChildren(
+    ids.length ? el("div", { class: "avs" }, ids.slice(0, 5).map(id => avatar(id))) : null,
+    ids.length ? el("span", { class: "here" }, el("span", { class: "dot" }), `${ids.length} here now`) : null,
+    mode === "live" ? el("span", { class: "role", text: "You: " + me.role }) : null);
+}
+
+function render(preserve) {
+  const keep = {}; let fid = null, s0 = null, s1 = null;
+  if (preserve) {
+    view.querySelectorAll("[id]").forEach(x => { if (dirty.has(x.id) && "value" in x) keep[x.id] = x.value; });
+    const a = document.activeElement;
+    if (a && view.contains(a) && a.id) { fid = a.id; try { s0 = a.selectionStart; s1 = a.selectionEnd; } catch {} }
+  } else dirty.clear();
+  if (!step && mode === "live" && metaReady && tasksLoaded) {
+    const want1 = recalledProject();
+    curPid = all.projects.some(p => p.id === want1) ? want1 : all.projects.length === 1 ? all.projects[0].id : null;
+    derive();
+    step = !curPid ? "home" : state.tasks.length ? "dash" : "idea";
+    if (room) room.presence({ step }).catch(() => {});
+  }
+  if (step && step !== "home" && !curPid && metaReady) step = "home";
+  want([me.id, ...state.members.map(m => m.id), ...state.tasks.map(t => t.assignee), ...state.activity.map(a => a.who), ...state.activity.map(a => a.target), ...state.comments.map(c => c.author), ...state.notes.map(n => n.updatedBy), ...state.results.map(r => r.by), ...onlineIds()]);
+  header();
+  let parts;
+  if (mode === "nodb") parts = [el("div", { class: "empty" }, el("h2", { text: "Open this project in Claude" }), el("p", { class: "muted", text: "This is a shared research project. Open it in Claude while signed in to see it and work on it with your team." }))];
+  else if (mode === "loading" || !metaReady || !step) parts = [el("div", { class: "empty" }, el("p", { class: "muted", text: "Loading the shared project…" }))];
+  else parts = ({ home: homeView, dash: dashView, idea: ideaView, plan: planView, results: resultsView, next: nextView, notes: notesView, team: teamView }[step])();
+  view.replaceChildren(...parts);
+  for (const [id, v] of Object.entries(keep)) { const x = document.getElementById(id); if (x) x.value = v; }
+  if (fid) { const x = document.getElementById(fid); if (x) { x.focus({ preventScroll: true }); try { if (s0 != null) x.setSelectionRange(s0, s1); } catch {} } }
+}
+
+async function ask(prompt, key) {
+  aiError = null;
+  if (!sample) { aiError = { key, msg: "Live AI runs when this page is opened in Claude." }; render(true); return null; }
+  aiBusy = key; render(true);
+  try { return await sample.json(prompt, { modelTier: "default", cache: false }); }
+  catch (e) { aiError = { key, msg: errCopy(e && e.code) }; return null; }
+  finally { aiBusy = null; render(true); }
+}
+const aiStatus = key => el("p", { class: "status" + (aiError && aiError.key === key ? " err" : ""), role: "status", text: aiBusy === key ? "Thinking… this can take up to a minute." : (aiError && aiError.key === key ? aiError.msg : "") });
+const editorsOnly = text => el("p", { class: "muted", style: "font-size:.85rem", text });
+
+/* ---------- Goal status (used by the dashboard) ---------- */
+function goalStatus(tasks, results = state.results) {
+  const res = tasks.map(t => results.find(r => r.taskId === t.id)).filter(Boolean);
+  if (!tasks.length) return "Not started";
+  if (res.some(r => r.criterion_met === "No")) return "Off track";
+  if (res.some(r => r.criterion_met === "Partly") || tasks.some(t => t.status === "Blocked") || tasks.some(t => t.status !== "Done" && t.due && t.due < today())) return "At risk";
+  if (!res.length && tasks.every(t => t.status === "To do")) return "Not started";
+  return "On track";
+}
+
+/* ---------- Dashboard ---------- */
+function dashView() {
+  const T = state.tasks, R = state.results;
+  const head = el("div", { class: "panel-head" }, el("div", {},
+    el("span", { class: "label", text: "Stage 4 · Dashboard" }),
+    el("h2", { text: "Are the research goals being met?" }),
+    el("p", { class: "muted", text: "Live progress from the plan and every logged result. Each task's success criterion is a goal; a goal is met when its result says so." })));
+  if (!T.length) return [head, el("div", { class: "empty" }, el("p", { text: "No plan yet, so there's nothing to track. Run the idea check and build the plan first." }), el("button", { class: "btn", type: "button", onclick: () => setStep(state.assessment ? "plan" : "idea") }, state.assessment ? "Go to research plan" : "Go to idea check"))];
+
+  const done = T.filter(t => t.status === "Done").length;
+  const met = R.filter(r => r.criterion_met === "Yes").length, partly = R.filter(r => r.criterion_met === "Partly").length, no = R.filter(r => r.criterion_met === "No").length;
+  const blocked = T.filter(t => t.status === "Blocked");
+  const overdue = T.filter(t => t.status !== "Done" && t.due && t.due < today());
+  const overall = goalStatus(T);
+  const kpi = (cls, label, big, small, note) => el("div", { class: "kpi " + cls }, el("span", { class: "label", text: label }), el("div", { class: "big" }, big, small ? el("small", { text: small }) : null), el("span", { class: "note", text: note }));
+  const kpis = el("div", { class: "kpis" },
+    kpi("", "Tasks done", `${pct(done, T.length)}%`, `${done} of ${T.length}`, `${T.filter(t => t.status === "Running").length} running, ${T.filter(t => t.status === "To do").length} to do`),
+    kpi(R.length ? (met === R.length ? "good" : no ? "bad" : "warn") : "", "Goals met", R.length ? `${met}` : "–", R.length ? `of ${R.length} tested` : "none tested yet", R.length ? `${partly} partly, ${no} missed` : "Log results to start scoring"),
+    kpi(blocked.length ? "bad" : "", "Blocked", `${blocked.length}`, blocked.length === 1 ? "task" : "tasks", blocked.length ? "Waiting on something outside the team" : "Nothing blocked"),
+    kpi(overdue.length ? "warn" : "", "Overdue", `${overdue.length}`, overdue.length === 1 ? "task" : "tasks", overdue.length ? "Past their due date and not done" : "Nothing overdue"));
+
+  const overallRow = el("div", { class: "diag" },
+    el("div", { class: "row" }, el("span", { class: `pill ${pillClass(overall)}`, text: "Overall: " + overall }),
+      state.review ? el("span", { class: `pill ${pillClass(state.review.status)}`, text: "Last AI review: " + state.review.status }) : null,
+      evidencePill()),
+    el("p", { text: overall === "Off track" ? "At least one result missed its success criterion. Run a review in Next steps to decide what to change."
+      : overall === "At risk" ? "Some goals are only partly met, blocked or overdue. Check the items under Needs attention."
+      : overall === "Not started" ? "No work has started yet. Move a task to Running when you begin."
+      : "Every result so far meets its success criterion." }));
+
+  /* Charts: task status donut + goal results bars */
+  const statusData = [["Done", "var(--good)"], ["Running", "var(--accent)"], ["Blocked", "var(--bad)"], ["To do", "var(--muted)"]].map(([s, c]) => ({ s, c, n: T.filter(t => t.status === s).length }));
+  const C = 2 * Math.PI * 52, gap = statusData.filter(d => d.n).length > 1 ? 3 : 0;
+  let off = 0;
+  const arcs = statusData.filter(d => d.n).map(d => {
+    const len = d.n / T.length * C;
+    const seg = `<circle cx="70" cy="70" r="52" fill="none" stroke="${d.c}" stroke-width="18" stroke-dasharray="${Math.max(len - gap, 0.5)} ${C}" stroke-dashoffset="${-off}"><title>${d.s}: ${d.n} task${d.n === 1 ? "" : "s"} (${pct(d.n, T.length)}%)</title></circle>`;
+    off += len; return seg;
+  }).join("");
+  const donut = el("div", { class: "donut", role: "img", "aria-label": "Tasks by status: " + statusData.map(d => `${d.s} ${d.n}`).join(", ") });
+  donut.innerHTML = `<svg viewBox="0 0 140 140" aria-hidden="true"><circle cx="70" cy="70" r="52" fill="none" stroke="var(--paper)" stroke-width="18"/><g transform="rotate(-90 70 70)">${arcs}</g></svg>`;
+  donut.append(el("div", { class: "donut-c" }, el("strong", { text: pct(done, T.length) + "%" }), el("span", { text: "done" })));
+  const statusChart = el("div", { class: "chart-card" }, el("h3", { text: "Tasks by status" }),
+    el("div", { class: "donut-wrap" }, donut,
+      el("ul", { class: "chart-legend" }, statusData.map(d => el("li", {}, el("i", { style: `background:${d.c}` }), el("span", { text: d.s }), el("b", { text: `${d.n}` }), el("span", { class: "ms-sub", text: `${pct(d.n, T.length)}%` }))))));
+  const notTested = T.filter(t => !R.some(r => r.taskId === t.id)).length;
+  const goalData = [["Met", met, "var(--good)"], ["Partly met", partly, "var(--warn)"], ["Missed", no, "var(--bad)"], ["Not tested yet", notTested, "var(--muted)"]];
+  const gmax = Math.max(1, ...goalData.map(g => g[1]));
+  const goalChart = el("div", { class: "chart-card" }, el("h3", { text: "Goal results" }),
+    el("div", { class: "vbars", role: "img", "aria-label": "Goal results: " + goalData.map(g => `${g[0]} ${g[1]}`).join(", ") },
+      el("div", { class: "vgrid", "aria-hidden": "true" }, [gmax, Math.round(gmax / 2), 0].filter((v, k, a) => a.indexOf(v) === k).map(v => el("span", { style: `bottom:${v / gmax * 100}%`, text: v }))),
+      goalData.map(([l, n, c]) => el("div", { class: "vbar", title: `${l}: ${n} of ${T.length} goals` },
+        el("div", { class: "vcol" }, el("i", { style: `height:${n / gmax * 100}%;background:${c}` + (n ? "" : ";height:2px;opacity:.5") }), el("b", { style: `bottom:calc(${n / gmax * 100}% + 4px)`, text: `${n}` })),
+        el("span", { class: "vl", text: l })))),
+    el("p", { class: "ms-sub", text: `${T.length} goals in total, one per task.` }));
+
+  const ms = allMilestones();
+  const legend = el("div", { class: "legend" }, [["s-done", "Done"], ["s-running", "Running"], ["s-blocked", "Blocked"], ["s-todo", "To do"]].map(([c, l]) => el("span", {}, el("i", { class: c }), l)));
+  const msRows = ms.map(m => {
+    const mt = T.filter(t => t.milestone === m);
+    if (!mt.length) return null;
+    const c = s => mt.filter(t => t.status === s).length;
+    const mr = mt.map(t => R.find(r => r.taskId === t.id)).filter(Boolean);
+    const gs = goalStatus(mt);
+    const seg = (cls, n, label) => n ? el("i", { class: cls, style: `width:${n / mt.length * 100}%`, title: `${label}: ${n}` }) : null;
+    return el("div", { class: "ms-row" },
+      el("div", { class: "ms-top" }, el("strong", { text: m }), el("span", { class: `pill ${pillClass(gs)}`, text: gs })),
+      el("div", { class: "stack", role: "img", "aria-label": `${m}: ${c("Done")} done, ${c("Running")} running, ${c("Blocked")} blocked, ${c("To do")} to do` },
+        seg("s-done", c("Done"), "Done"), seg("s-running", c("Running"), "Running"), seg("s-blocked", c("Blocked"), "Blocked"), seg("s-todo", c("To do"), "To do")),
+      el("span", { class: "ms-sub", text: `${c("Done")} of ${mt.length} tasks done · goals met ${mr.filter(r => r.criterion_met === "Yes").length} of ${mr.length} tested` }));
+  });
+
+  const order = { No: 0, Partly: 1, Yes: 2 };
+  const rows = T.map(t => ({ t, r: R.find(x => x.taskId === t.id) }))
+    .sort((a, b) => (a.r ? order[a.r.criterion_met] ?? 3 : 4) - (b.r ? order[b.r.criterion_met] ?? 3 : 4));
+  const table = el("div", { class: "table-wrap" }, el("table", { class: "score" },
+    el("thead", {}, el("tr", {}, el("th", { text: "Task" }), el("th", { text: "Goal (success criterion)" }), el("th", { text: "Result" }))),
+    el("tbody", {}, rows.map(({ t, r }) => el("tr", {},
+      el("td", {}, el("strong", { text: t.title }), el("div", { class: "ms-sub", text: t.milestone })),
+      el("td", { class: "crit-cell", text: t.success_criterion }),
+      el("td", {}, el("span", { class: `pill ${pillClass(r ? r.criterion_met : t.status === "Blocked" ? "Blocked" : "Not tested")}`, text: r ? (r.criterion_met === "Yes" ? "Met" : r.criterion_met === "Partly" ? "Partly met" : "Missed") : t.status === "Blocked" ? "Blocked" : "Not tested" }),
+        r ? el("div", { class: "ms-sub", style: "margin-top:4px", text: r.outcome }) : null))))));
+
+  const attnItems = [
+    ...R.filter(r => r.criterion_met !== "Yes").map(r => ({ id: r.taskId, why: `Result ${r.criterion_met === "No" ? "missed" : "partly met"} its goal`, cls: r.criterion_met === "No" ? "bad" : "warn" })),
+    ...blocked.map(t => ({ id: t.id, why: "Blocked: " + (t.blocker || "no reason given"), cls: "bad" })),
+    ...overdue.map(t => ({ id: t.id, why: "Overdue since " + fmtDate(t.due), cls: "warn" }))
+  ].filter(x => state.tasks.some(t => t.id === x.id));
+  const attn = el("div", { class: "attn" }, attnItems.length ? attnItems.map(x => el("button", { type: "button", onclick: () => openTaskEditor(state.tasks.find(t => t.id === x.id)) },
+    el("strong", { text: taskTitle(x.id) }), el("span", { class: "why", style: `color:var(--${x.cls})`, text: x.why }))) : el("p", { class: "muted", text: "Nothing needs attention right now." }));
+
+  const loadIds = [...new Set(T.filter(t => t.assignee && t.status !== "Done").map(t => t.assignee))];
+  const unassigned = T.filter(t => !t.assignee && t.status !== "Done").length;
+  const load = el("div", {},
+    loadIds.map(id => { const open = T.filter(t => t.assignee === id && t.status !== "Done"); return el("div", { class: "load-row" }, avatar(id), el("span", { text: fullName(id) + (id === me.id ? " (you)" : "") }), el("span", { class: "ms-sub", text: `${open.length} open${open.some(t => t.status === "Blocked") ? " · 1+ blocked" : ""}` })); }),
+    el("div", { class: "load-row" }, el("span", { class: "av", "aria-hidden": "true" }), el("span", { class: "muted", text: "Unassigned" }), el("span", { class: "ms-sub", text: `${unassigned} open` })));
+
+  return [head, kpis, overallRow,
+    el("div", { class: "charts" }, statusChart, goalChart),
+    el("div", { class: "dash-grid" },
+      el("section", {}, el("h3", { text: "Progress by milestone" }), legend, el("div", {}, msRows)),
+      el("section", {}, el("h3", { text: "Needs attention" }), attn, el("h3", { text: "Open tasks by person" }), load)),
+    el("section", { style: "display:grid;gap:10px" }, el("h3", { text: "Goal scorecard" }), table)];
+}
+
+/* ---------- 1. Idea check ---------- */
+async function clearPlan() { await wipe(["tasks", "results", "comments"]); }
+function ideaView() {
+  const i = state.idea;
+  const status = aiStatus("idea");
+  let armed = false;
+  const go = el("button", { class: "btn primary", type: "submit", disabled: aiBusy === "idea" }, state.assessment ? "Re-run idea check" : "Check this idea");
+  const form = el("form", { class: "grid", onsubmit: async e => {
+    e.preventDefault();
+    const f = new FormData(form);
+    const idea = { title: f.get("title").trim(), text: f.get("text").trim(), field: f.get("field").trim(), goal: f.get("goal") };
+    if (!idea.title || !idea.text) { aiError = { key: "idea", msg: "Add a title and a short description of the idea." }; render(true); return; }
+    if (state.tasks.length && !armed) { armed = true; status.className = "status err"; status.textContent = "This replaces the plan, results and review for everyone on the project. Click again to confirm."; return; }
+    const out = await ask(
+`You are a research advisor assessing a new research idea.
+Idea title: ${idea.title}
+Field: ${idea.field || "not given"}
+Goal: ${idea.goal}
+Idea: ${idea.text}
+
+Reply with only JSON of this shape:
+{"verdict":"Pursue|Refine|Rethink","viability_score":0-100,"summary":"2 sentences","novelty":{"score":0-100,"reason":"1 sentence"},"feasibility":{"score":0-100,"reason":"1 sentence"},"commercial_potential":{"score":0-100,"reason":"1 sentence"},"challenges":["3-5 short items"],"gaps":["2-3 open questions existing work likely leaves"],"search_queries":["4 precise literature search queries"],"assumptions":[${ASSUMPTION_SHAPE}]}
+"assumptions" lists the 5-7 key assumptions behind commercial_potential, with ids a1, a2, ... Label estimates as estimates; never present a guessed market figure as a fact.
+Do not name or cite specific papers; give search queries instead. Be candid and specific to this idea.`, "idea");
+    if (!out) return;
+    if (await putMeta({ idea, assessment: out, milestones: [], review: null, addedRecs: [] })) {
+      await clearPlan(); dirty.clear();
+      logAct(`ran the idea check: ${out.verdict}, ${clamp(out.viability_score)}/100`);
+    }
+  }},
+    el("div", { class: "field wide" }, el("label", { class: "label", for: "f-title", text: "Idea title" }), el("input", { id: "f-title", name: "title", value: i.title, placeholder: "e.g. Paper-strip nitrate test read by a phone camera" })),
+    el("div", { class: "field wide" }, el("label", { class: "label", for: "f-text", text: "Describe the idea in 2–5 sentences" }), Object.assign(el("textarea", { id: "f-text", name: "text", placeholder: "What it is, who it helps, and how you would test it." }), { value: i.text })),
+    el("div", { class: "field" }, el("label", { class: "label", for: "f-field", text: "Field" }), el("input", { id: "f-field", name: "field", value: i.field, placeholder: "e.g. Materials science" })),
+    el("div", { class: "field" }, el("label", { class: "label", for: "f-goal", text: "Goal" }), el("select", { id: "f-goal", name: "goal" }, ["Academic paper", "Product", "Grant proposal"].map(g => el("option", { value: g, selected: g === i.goal }, g)))),
+    el("div", { class: "row field wide" }, canAdmin ? go : null, status));
+  lock(form, canAdmin);
+
+  const parts = [
+    el("div", { class: "panel-head" }, el("div", {}, el("span", { class: "label", text: "Stage 1" }), el("h2", { text: "Is this idea worth pursuing?" }), el("p", { class: "muted", text: "Get a viability score, the main challenges, open gaps, and where to look in the literature." }),
+      canAdmin ? null : editorsOnly("Only Leads can change the idea or re-run the check."))),
+    form];
+  const a = state.assessment;
+  if (a) {
+    const score = clamp(a.viability_score), C = 2 * Math.PI * 64;
+    const ring = el("div", { class: "ring" });
+    ring.innerHTML = `<svg viewBox="0 0 160 160" aria-hidden="true"><circle cx="80" cy="80" r="64" fill="none" stroke="var(--line)" stroke-width="12"/><circle cx="80" cy="80" r="64" fill="none" stroke="var(--accent)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${(score / 100) * C} ${C}"/></svg>`;
+    ring.append(el("div", { class: "val" }, el("div", {}, el("div", { class: "num", text: score }), el("div", { class: "label", text: "viability / 100" }))));
+    const sub = (name, o) => el("div", { class: "sub" },
+      el("div", { class: "sub-top" }, el("span", { text: name }), el("span", { text: clamp(o && o.score) })),
+      el("div", { class: "bar" }, el("i", { style: `width:${clamp(o && o.score)}%` })),
+      el("p", { class: "muted", style: "font-size:.86rem", text: (o && o.reason) || "" }));
+    parts.push(
+      el("hr", { style: "border:0;border-top:1px solid var(--line);margin:0;width:100%" }),
+      el("div", { class: "verdict-grid" }, ring,
+        el("div", { class: "subs" },
+          el("div", { class: "row" }, el("span", { class: `pill ${pillClass(a.verdict)}`, text: `Verdict: ${a.verdict}` })),
+          el("p", { text: a.summary || "" }),
+          sub("Novelty", a.novelty), sub("Feasibility", a.feasibility), sub("Commercial potential", a.commercial_potential), commercialNote(a))),
+      el("div", { class: "cols" },
+        el("section", {}, el("h3", { text: "Key challenges" }), el("ul", { class: "clean" }, (a.challenges || []).map(c => el("li", { text: c })))),
+        el("section", {}, el("h3", { text: "Gaps to explore" }), el("ul", { class: "clean" }, (a.gaps || []).map(c => el("li", { text: c })))),
+        el("section", {}, el("h3", { text: "Literature to check" }),
+          el("p", { class: "muted", style: "font-size:.85rem", text: "Each opens a live Semantic Scholar search, so every paper you see is real." }),
+          el("div", { class: "lit" }, (a.search_queries || []).map(q => el("a", { href: "https://www.semanticscholar.org/search?q=" + encodeURIComponent(q), target: "_blank", rel: "noopener" }, q, el("span", { text: "Search Semantic Scholar ↗" })))))),
+      directionsSection(a),
+      commercialSection(a),
+      el("div", { class: "row" }, el("button", { class: "btn primary", type: "button", onclick: () => setStep("plan") }, state.tasks.length ? "Go to research plan" : "Build the research plan")));
+  }
+  return parts;
+}
+
+/* ---------- 2. Plan ---------- */
+function planView() {
+  const status = aiStatus("plan");
+  let armed = false;
+  const gen = el("button", { class: "btn primary", type: "button", disabled: aiBusy === "plan", onclick: async () => {
+    if (state.tasks.length && !armed) { armed = true; status.className = "status err"; status.textContent = "This replaces every task and result for everyone. Click again to confirm."; return; }
+    const a = state.assessment;
+    const out = await ask(
+`You are a research project planner. Turn this idea into a validation plan.
+Idea: ${state.idea.title}. ${state.idea.text}
+Goal: ${state.idea.goal}
+Known challenges: ${(a.challenges || []).join("; ")}
+
+Reply with only JSON: {"milestones":[{"title":"short","tasks":[{"title":"short action","method":"1 sentence","success_criterion":"measurable target with a number","est_days":number}]}]}
+Give 3 milestones with 2 tasks each, ordered from first to last. Every success criterion must be measurable.`, "plan");
+    if (!out || !Array.isArray(out.milestones)) return;
+    if (!(await putMeta({ milestones: out.milestones.map(m => String(m.title)), review: null, addedRecs: [] }))) return;
+    await clearPlan();
+    let n = 0; const base = Date.now();
+    await Promise.all(out.milestones.flatMap(m => (m.tasks || []).map(t => putTask({ id: uid("t"), order: base + (n++), milestone: String(m.title), title: String(t.title), method: String(t.method || ""), success_criterion: String(t.success_criterion || ""), est_days: Number(t.est_days) || 1, status: "To do", assignee: null, due: null, createdBy: me.id }))));
+    logAct(`generated a plan with ${n} tasks`);
+  }}, state.tasks.length ? "Regenerate plan" : "Generate plan");
+
+  const head = el("div", { class: "panel-head" },
+    el("div", {}, el("span", { class: "label", text: "Stage 2" }), el("h2", { text: "Research plan" }), el("p", { class: "muted", text: "Milestones and tasks, each with a measurable success criterion. Drag a card to another column (or use its status menu on a phone), and click it to edit, assign or comment." })),
+    state.assessment ? el("div", { class: "row" }, canWrite ? el("button", { class: "btn", type: "button", onclick: () => openTaskEditor(null) }, "+ Add task") : null, canAdmin ? gen : null, status) : null);
+
+  if (!state.assessment) return [head, el("div", { class: "empty" }, el("p", { text: "Run the idea check first. The plan is built from its challenges." }), el("button", { class: "btn", type: "button", onclick: () => setStep("idea") }, "Go to idea check"))];
+  if (!state.tasks.length) return [head, el("div", { class: "empty" }, el("p", { text: canAdmin ? "No plan yet. Generate one from the idea check, or add tasks by hand." : canWrite ? "No plan yet. A Lead can generate one, or you can add tasks by hand." : "No plan yet. A Lead can generate one." }))];
+
+  const q = taskQ.trim().toLowerCase(), DAY = 864e5, now = Date.now();
+  const shown = state.tasks.filter(t =>
+    (!q || [t.title, t.method, t.success_criterion, t.blocker].some(x => String(x || "").toLowerCase().includes(q))) &&
+    (ownerF === "any" || (ownerF === "mine" ? t.assignee === me.id : ownerF === "none" ? !t.assignee : t.assignee === ownerF)) &&
+    (msF === "all" || t.milestone === msF) &&
+    (updF === "any" || (t.updatedAt && (updF === "7d" ? now - t.updatedAt <= 7 * DAY : now - t.updatedAt > 14 * DAY))));
+  const ownerIds = [...new Set([...state.members.map(m => m.id), ...state.tasks.map(t => t.assignee)].filter(x => x && x !== me.id))];
+  const active = q || ownerF !== "any" || msF !== "all" || updF !== "any";
+  const chips = el("div", { class: "filters", role: "search", "aria-label": "Filter tasks" },
+    el("input", { id: "f-task-q", type: "search", class: "fsearch", placeholder: "Search tasks, methods, criteria…", "aria-label": "Search tasks", value: taskQ, oninput: e => { taskQ = e.target.value; render(true); } }),
+    el("select", { id: "f-owner", "aria-label": "Filter by owner", onchange: e => { ownerF = e.target.value; render(true); } },
+      [["any", "Any owner"], ...(me.id ? [["mine", "My tasks"]] : []), ["none", "Unassigned"], ...ownerIds.map(id => [id, fullName(id)])].map(([v, l]) => el("option", { value: v, selected: v === ownerF }, l))),
+    el("select", { id: "f-ms", "aria-label": "Filter by milestone", onchange: e => { msF = e.target.value; render(true); } },
+      [["all", "All milestones"], ...allMilestones().map(m => [m, m])].map(([v, l]) => el("option", { value: v, selected: v === msF }, l))),
+    el("select", { id: "f-upd", "aria-label": "Filter by last update", onchange: e => { updF = e.target.value; render(true); } },
+      [["any", "Updated any time"], ["7d", "Updated in the last 7 days"], ["stale", "Not touched in 14+ days"]].map(([v, l]) => el("option", { value: v, selected: v === updF }, l))),
+    active ? el("span", { class: "fcount" }, `Showing ${shown.length} of ${state.tasks.length} tasks · `, el("button", { class: "linkbtn", type: "button", onclick: () => { taskQ = ""; ownerF = "any"; msF = "all"; updF = "any"; render(); } }, "Clear filters")) : null);
+
+  const cols = STATUSES.map(s => {
+    const list = shown.filter(t => t.status === s);
+    const col = el("div", { class: "col" + (s === "Blocked" ? " col-blocked" : ""), "data-status": s,
+      ondragover: e => { if (!dragId || !canWrite) return; e.preventDefault(); e.dataTransfer.dropEffect = "move"; col.classList.add("drop"); },
+      ondragleave: e => { if (!col.contains(e.relatedTarget)) col.classList.remove("drop"); },
+      ondrop: e => { e.preventDefault(); col.classList.remove("drop"); const id = dragId; dragId = null; setStatus(state.tasks.find(t => t.id === id), s); } },
+      el("div", { class: "col-head" }, el("span", { class: "label", text: s }), el("span", { class: "count", text: list.length })),
+      list.length ? list.map(card) : el("p", { class: "muted drop-hint", text: active ? "No matching tasks." : canWrite ? "Drop a task here." : "No tasks." }));
+    return col;
+  });
+  return [head, chips, el("div", { class: "board" }, cols)];
+}
+
+async function setStatus(t, s) {
+  if (!t || !canWrite || t.status === s) return;
+  if (await patchTask(t.id, { status: s })) {
+    logAct(`moved "${t.title}" to ${s}`);
+    if (s === "Blocked" && !t.blocker) openTaskEditor({ ...t, status: s }, "e-blocker");
+  }
+}
+
+function card(t) {
+  const open = () => openTaskEditor(t);
+  const stop = e => e.stopPropagation();
+  const move = el("select", { class: "move", id: "mv-" + t.id, "aria-label": "Status of " + t.title, disabled: !canWrite, onclick: stop, onkeydown: stop, onmousedown: stop, onchange: e => setStatus(t, e.target.value) },
+    STATUSES.map(s => el("option", { value: s, selected: s === t.status }, s)));
+  const nComments = state.comments.filter(c => c.taskId === t.id).length;
+  const late = t.due && t.status !== "Done" && t.due < today();
+  const c = el("div", { class: "card" + (t.fromReview ? " new" : "") + (t.status === "Blocked" ? " blocked" : ""), role: "button", tabindex: "0", draggable: canWrite ? "true" : null, onclick: open,
+    ondragstart: e => { dragId = t.id; e.dataTransfer.effectAllowed = "move"; try { e.dataTransfer.setData("text/plain", t.title); } catch {} requestAnimationFrame(() => c.classList.add("dragging")); },
+    ondragend: () => { dragId = null; c.classList.remove("dragging"); document.querySelectorAll(".col.drop").forEach(x => x.classList.remove("drop")); },
+    onkeydown: e => { if ((e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) { e.preventDefault(); open(); } } },
+    el("span", { class: "ms", text: t.milestone + (t.fromReview ? " · added by review" : t.changedByReview ? " · changed by review" : "") }),
+    el("span", { class: "t", text: t.title }),
+    t.status === "Blocked" ? el("span", { class: "blocker", text: "Blocked: " + (t.blocker || "reason not given yet") }) : null,
+    el("span", { class: "crit", text: "Success: " + t.success_criterion }),
+    (t.assignee || t.due) ? el("span", { class: "who-due" },
+      t.assignee ? el("span", { class: "assignee" }, avatar(t.assignee, "av sm"), nameOf(t.assignee)) : el("span", { text: "Unassigned" }),
+      t.due ? el("span", { class: "due" + (late ? " late" : ""), text: (late ? "Overdue · " : "Due ") + fmtDate(t.due) }) : null) : null,
+    el("span", { class: "meta" }, el("span", { text: `~${t.est_days} d` + (state.results.some(r => r.taskId === t.id) ? " · result" : "") + (nComments ? ` · ${nComments} comment${nComments > 1 ? "s" : ""}` : "") }), move));
+  return c;
+}
+
+function commentEl(c) {
+  const mine = c.author && c.author === me.id;
+  return el("div", { class: "comment" }, avatar(c.author),
+    el("div", {},
+      el("div", { class: "line1" }, el("strong", { text: fullName(c.author) }), el("span", { class: "when", text: ago(c.ts) }),
+        (mine || canAdmin) ? el("button", { class: "linkbtn", type: "button", onclick: () => save(db.doc("comments/" + c.id).delete()) }, "Delete") : null),
+      el("p", { text: c.text })));
+}
+
+function openTaskEditor(t, focusId) {
+  if (!t && !canWrite) return;
+  const isNew = !t;
+  const prevFocus = document.activeElement;
+  const close = () => { overlay.remove(); editorHook = null; document.removeEventListener("keydown", esc); if (prevFocus && prevFocus.focus) prevFocus.focus(); };
+  const esc = e => { if (e.key === "Escape") close(); };
+  const v = t || { title: "", milestone: allMilestones()[0] || "", method: "", success_criterion: "", est_days: 3, status: "To do", assignee: null, due: null };
+  const msg = el("p", { class: "status", role: "status" });
+  const memberIds = [...new Set([me.id, ...state.members.map(m => m.id), v.assignee].filter(Boolean))];
+  const form = el("form", { class: "grid", onsubmit: async e => {
+    e.preventDefault();
+    const f = new FormData(form);
+    const data = { title: f.get("title").trim(), milestone: f.get("milestone").trim() || "General", method: f.get("method").trim(), success_criterion: f.get("crit").trim(), est_days: Math.max(1, Number(f.get("days")) || 1), status: f.get("status"), blocker: f.get("blocker").trim(), assignee: f.get("assignee") || null, due: f.get("due") || null };
+    if (!data.title || !data.success_criterion) { msg.className = "status err"; msg.textContent = "A task needs a title and a success criterion."; return; }
+    const ok = isNew ? await putTask({ id: uid("t"), order: Date.now(), createdBy: me.id, ...data }) : await patchTask(t.id, data);
+    if (!ok) return;
+    if (isNew) logAct(`added the task "${data.title}"`);
+    else if (data.status !== t.status) logAct(`moved "${data.title}" to ${data.status}`);
+    else if (data.assignee !== (t.assignee || null)) logAct(!data.assignee ? `unassigned "${data.title}"` : data.assignee === me.id ? `took on "${data.title}"` : `assigned "${data.title}" to {target}`, data.assignee);
+    else logAct(`edited "${data.title}"`);
+    close();
+  }},
+    el("div", { class: "field wide" }, el("label", { class: "label", for: "e-title", text: "Task" }), el("input", { id: "e-title", name: "title", value: v.title })),
+    el("div", { class: "field" }, el("label", { class: "label", for: "e-ms", text: "Milestone" }), el("input", { id: "e-ms", name: "milestone", value: v.milestone, list: "e-ms-list", placeholder: "Pick or type a new one" }),
+      el("datalist", { id: "e-ms-list" }, allMilestones().map(m => el("option", { value: m })))),
+    el("div", { class: "field" }, el("label", { class: "label", for: "e-status", text: "Status" }), el("select", { id: "e-status", name: "status" }, STATUSES.map(s => el("option", { value: s, selected: s === v.status }, s)))),
+    el("div", { class: "field" }, el("label", { class: "label", for: "e-assignee", text: "Owner" }), el("select", { id: "e-assignee", name: "assignee" }, el("option", { value: "" }, "Unassigned"),
+      memberIds.map(id => el("option", { value: id, selected: id === v.assignee }, fullName(id) + (id === me.id ? " (you)" : ""))))),
+    el("div", { class: "field" }, el("label", { class: "label", for: "e-due", text: "Due date" }), el("input", { id: "e-due", name: "due", type: "date", value: v.due || "" })),
+    el("div", { class: "field wide" }, el("label", { class: "label", for: "e-blocker", text: "What's blocking it? (if blocked)" }), el("input", { id: "e-blocker", name: "blocker", value: v.blocker || "", placeholder: "e.g. Waiting for reagent delivery" })),
+    el("div", { class: "field wide" }, el("label", { class: "label", for: "e-method", text: "Method" }), Object.assign(el("textarea", { id: "e-method", name: "method", style: "min-height:70px" }), { value: v.method || "" })),
+    el("div", { class: "field wide" }, el("label", { class: "label", for: "e-crit", text: "Success criterion (measurable)" }), el("input", { id: "e-crit", name: "crit", value: v.success_criterion })),
+    el("div", { class: "field" }, el("label", { class: "label", for: "e-days", text: "Estimated days" }), el("input", { id: "e-days", name: "days", type: "number", min: "1", value: v.est_days })),
+    el("div", { class: "row field wide" }, canWrite ? el("button", { class: "btn primary", type: "submit" }, isNew ? "Add task" : "Save changes") : null, el("button", { class: "btn", type: "button", onclick: close }, canWrite ? "Cancel" : "Close"), msg));
+  if (!canWrite) form.querySelectorAll("input, textarea, select").forEach(x => { x.disabled = true; });
+
+  const parts = [el("div", { class: "panel-head" }, el("div", {}, el("span", { class: "label", text: isNew ? "New task" : canWrite ? "Edit task" : "Task" }), el("h2", { text: isNew ? "Add a task to the plan" : v.title }))), form];
+  if (!isNew) {
+    const linked = state.notes.filter(n => n.taskId === t.id);
+    const cBox = el("div", { class: "comments" });
+    const draw = () => {
+      const cs = state.comments.filter(c => c.taskId === t.id);
+      cBox.replaceChildren(...(cs.length ? cs.map(commentEl) : [el("p", { class: "muted", style: "font-size:.88rem", text: "No comments yet. Ask a question or share an update." })]));
+    };
+    draw(); editorHook = draw;
+    const cText = el("textarea", { id: "c-text", "aria-label": "Write a comment", placeholder: "Write a comment…" });
+    const composer = canComment ? el("div", { class: "composer" }, cText, el("div", { class: "row" }, el("button", { class: "btn small primary", type: "button", onclick: async () => {
+      const text = cText.value.trim(); if (!text) return;
+      if (await save(db.collection("comments").add({ projectId: curPid, taskId: t.id, author: me.id, text, ts: Date.now() }))) { cText.value = ""; logAct(`commented on "${t.title}"`); }
+    }}, "Post comment"))) : null;
+    let armed = false;
+    const del = canWrite ? el("button", { class: "btn small danger", type: "button", onclick: async () => {
+      if (!armed) { armed = true; del.textContent = "Click again to delete this task, its result and comments"; return; }
+      if (!(await save(db.doc("tasks/" + t.id).delete()))) return;
+      await Promise.all([db.doc("results/" + t.id).delete().catch(() => {}),
+        ...state.comments.filter(c => c.taskId === t.id).map(c => db.doc("comments/" + c.id).delete().catch(() => {})),
+        ...state.notes.filter(n => n.taskId === t.id).map(n => db.doc("notes/" + n.id).update({ taskId: null }).catch(() => {}))]);
+      logAct(`deleted the task "${t.title}"`);
+      close();
+    }}, "Delete task") : null;
+    parts.push(
+      el("section", { class: "linked" }, el("h3", { text: "Comments" }), cBox, composer),
+      el("section", { class: "linked" }, el("h3", { text: "Notes on this task" }),
+        linked.length ? linked.map(n => el("button", { class: "note-item", type: "button", onclick: () => { selectedNote = n.id; noteEditing = false; close(); setStep("notes"); } }, el("span", { class: "top" }, el("strong", { text: n.title }), el("span", { class: "kind", text: n.kind })))) : el("p", { class: "muted", style: "font-size:.88rem", text: "No notes yet." })),
+      canWrite ? el("div", { class: "row" },
+        el("button", { class: "btn small", type: "button", onclick: () => { selectedTask = t.id; close(); setStep("results"); } }, "Log result"),
+        el("button", { class: "btn small", type: "button", onclick: () => { selectedNote = "new"; newNoteTask = t.id; close(); setStep("notes"); } }, "Add a note"),
+        del) : null);
+  }
+  const overlay = el("div", { class: "overlay", onclick: e => { if (e.target === overlay) close(); } },
+    el("div", { class: "sheet", role: "dialog", "aria-modal": "true", "aria-label": isNew ? "Add task" : "Task details" }, parts));
+  document.body.append(overlay);
+  document.addEventListener("keydown", esc);
+  const f = overlay.querySelector("#" + (focusId || "e-title"));
+  if (f && !f.disabled) f.focus(); else overlay.querySelector(".sheet button").focus();
+}
+
+/* ---------- 3. Results ---------- */
+function resultsView() {
+  const head = el("div", { class: "panel-head" }, el("div", {}, el("span", { class: "label", text: "Stage 3" }), el("h2", { text: "Log results" }), el("p", { class: "muted", text: "Record what you did and whether the task met its success criterion." })));
+  if (!state.tasks.length) return [head, el("div", { class: "empty" }, el("p", { text: "There are no tasks yet. Build the plan first." }), el("button", { class: "btn", type: "button", onclick: () => setStep("plan") }, "Go to plan"))];
+
+  if (!selectedTask || !state.tasks.find(t => t.id === selectedTask)) selectedTask = (state.tasks.find(t => t.status !== "Done") || state.tasks[0]).id;
+  const task = state.tasks.find(t => t.id === selectedTask);
+  const prev = state.results.find(r => r.taskId === task.id) || {};
+  const msg = el("p", { class: "status", role: "status" });
+  const sel = el("select", { id: "r-task", onchange: e => { selectedTask = e.target.value; render(); } },
+    state.tasks.map(t => el("option", { value: t.id, selected: t.id === task.id }, `${t.milestone} · ${t.title}`)));
+  const form = el("form", { class: "grid", onsubmit: async e => {
+    e.preventDefault();
+    const f = new FormData(form);
+    const entry = { taskId: task.id, what_done: f.get("what").trim(), outcome: f.get("outcome").trim(), criterion_met: f.get("met"), notes: f.get("notes").trim(), logged_at: today(), ts: prev.ts || Date.now(), by: me.id };
+    if (!entry.outcome) { msg.className = "status err"; msg.textContent = "Add the outcome you observed."; return; }
+    if (!(await save(db.doc("results/" + task.id).set({ projectId: curPid, ...entry })))) return;
+    await patchTask(task.id, { status: "Done" });
+    logAct(`logged a result for "${task.title}": criterion ${entry.criterion_met === "Yes" ? "met" : entry.criterion_met === "Partly" ? "partly met" : "missed"}`);
+    dirty.clear(); render();
+  }},
+    el("div", { class: "field wide" }, el("label", { class: "label", for: "r-task", text: "Task" }), sel),
+    el("p", { class: "crit field wide", text: "Success criterion: " + task.success_criterion }),
+    el("div", { class: "field wide" }, el("label", { class: "label", for: "r-what", text: "What you did" }), Object.assign(el("textarea", { id: "r-what", name: "what" }), { value: prev.what_done || "" })),
+    el("div", { class: "field wide" }, el("label", { class: "label", for: "r-outcome", text: "Outcome observed" }), Object.assign(el("textarea", { id: "r-outcome", name: "outcome" }), { value: prev.outcome || "" })),
+    el("div", { class: "field" }, el("label", { class: "label", for: "r-met", text: "Criterion met?" }), el("select", { id: "r-met", name: "met" }, ["Yes", "Partly", "No"].map(x => el("option", { value: x, selected: x === (prev.criterion_met || "Yes") }, x)))),
+    el("div", { class: "field" }, el("label", { class: "label", for: "r-notes", text: "Notes" }), el("input", { id: "r-notes", name: "notes", value: prev.notes || "" })),
+    el("div", { class: "row field wide" }, canWrite ? el("button", { class: "btn primary", type: "submit" }, prev.outcome ? "Update result" : "Save result") : null, msg));
+  if (!canWrite) form.querySelectorAll("textarea, input, #r-met").forEach(x => { x.disabled = true; });
+
+  const entries = state.results.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0));
+  const log = el("section", { class: "log" }, el("h3", { text: "Lab log" }),
+    entries.length ? entries.map((r, k) => {
+      const t = state.tasks.find(x => x.id === r.taskId);
+      return el("article", { class: "entry" },
+        el("div", { class: "entry-top" }, el("span", { class: "label", text: `Entry ${String(entries.length - k).padStart(2, "0")} · ${r.logged_at}${r.by ? " · " + fullName(r.by) : ""}` }), el("span", { class: `pill ${pillClass(r.criterion_met)}`, text: "Criterion met: " + r.criterion_met })),
+        el("strong", { text: t ? t.title : "Removed task" }),
+        r.what_done ? el("p", { class: "muted", text: r.what_done }) : null,
+        el("p", { text: r.outcome }),
+        r.notes ? el("p", { class: "muted", style: "font-size:.88rem", text: "Note: " + r.notes }) : null);
+    }) : el("p", { class: "muted", text: "No results logged yet." }));
+
+  const hasMiss = state.results.some(r => r.criterion_met !== "Yes");
+  return [head, form,
+    state.results.length ? el("div", { class: "row" }, el("button", { class: "btn" + (hasMiss ? " primary" : ""), type: "button", onclick: () => setStep("next") }, hasMiss ? "A result missed its target — get next steps" : "Review progress")) : null,
+    log];
+}
+
+/* ---------- 4. Next steps ---------- */
+function nextView() {
+  const status = aiStatus("review");
+  const go = el("button", { class: "btn primary", type: "button", disabled: aiBusy === "review", onclick: async () => {
+    const lines = state.tasks.map(t => {
+      const r = state.results.find(x => x.taskId === t.id);
+      return `- id=${t.id} [${t.status}] ${t.milestone}: ${t.title} | method: ${t.method || "-"} | criterion: ${t.success_criterion} | est_days: ${t.est_days}` + (t.due ? ` | due: ${t.due}` : "") + (t.status === "Blocked" && t.blocker ? ` | blocked by: ${t.blocker}` : "") + (r ? ` | result: ${r.outcome} | met: ${r.criterion_met}${r.notes ? " | notes: " + r.notes : ""}` : "");
+    }).join("\n");
+    const noteLines = state.notes.filter(n => n.kind === "Observation" || n.kind === "Decision").slice(0, 8)
+      .map(n => `- ${n.kind}: ${n.title}${n.taskId ? " (task " + n.taskId + ")" : ""}: ${String(n.body || "").slice(0, 300).replace(/\s+/g, " ")}`).join("\n");
+    const troubled = new Set([...state.results.filter(r => r.criterion_met !== "Yes").map(r => r.taskId), ...state.tasks.filter(t => t.status === "Blocked").map(t => t.id)]);
+    const protoLines = state.notes.filter(n => n.kind === "Protocol" && n.taskId && troubled.has(n.taskId)).slice(0, 4)
+      .map(n => `- Protocol: ${n.title} (task ${n.taskId}): ${String(n.body || "").slice(0, 600).replace(/\s+/g, " ")}`).join("\n");
+    const out = await ask(
+`You are a research advisor reviewing progress on a project. Today is ${today()}.
+Idea: ${state.idea.title}. ${state.idea.text}
+Milestones: ${allMilestones().join(", ")}
+Tasks and results:
+${lines}
+${noteLines ? "\nLab notes:\n" + noteLines + "\n" : ""}${protoLines ? "\nProtocols for tasks that missed their criteria or are blocked (check whether a step in the method could explain the result):\n" + protoLines + "\n" : ""}
+Diagnose why any results missed their criteria and recommend what to change next.
+When an existing task only needs a tweak (a different method, a revised criterion, more time, or re-running it), edit that task instead of adding a new one. Add new tasks only for genuinely new work.
+Reply with only JSON: {"status":"On track|Adjust|Pivot","diagnosis":"2-3 sentences","recommendations":[{"change":"short","reason":"1 sentence tied to a logged result or note","edits":[{"task_id":"an id from the list","title":"optional","method":"optional","success_criterion":"optional","est_days":"optional number","status":"optional: To do|Running|Blocked"}],"new_tasks":[{"milestone":"one of the existing milestones","title":"short","method":"1 sentence","success_criterion":"measurable","est_days":number}]}]}
+Give 2-3 recommendations. In each edit include only the fields you change. edits and new_tasks may be empty arrays.`, "review");
+    if (!out) return;
+    if (await putMeta({ review: { ...out, by: me.id, at: Date.now() }, addedRecs: [] })) logAct(`ran an AI review: ${out.status}`);
+  }}, state.review ? "Review again" : "Review progress");
+
+  const head = el("div", { class: "panel-head" },
+    el("div", {}, el("span", { class: "label", text: "Stage 5" }), el("h2", { text: "What should change next?" }), el("p", { class: "muted", text: "The AI reads the plan, every logged result, your observation and decision notes, and the protocols behind any missed or blocked task. Then it suggests tweaks, new tasks or a pivot. Leads approve changes before they reach the board." })),
+    state.results.length && canAdmin ? el("div", { class: "row" }, go, status) : null);
+  if (!state.results.length) return [head, el("div", { class: "empty" }, el("p", { text: "Log at least one result first. Reviews are based on what actually happened." }), el("button", { class: "btn", type: "button", onclick: () => setStep("results") }, "Go to results"))];
+
+  const rv = state.review;
+  if (!rv) return [head, el("div", { class: "empty" }, el("p", { text: `${state.results.length} result${state.results.length > 1 ? "s" : ""} logged. ${canAdmin ? "Run a review to get recommendations." : "A Lead can run a review to get recommendations."}` }))];
+
+  const FIELDS = [["title", "Title"], ["method", "Method"], ["success_criterion", "Success"], ["est_days", "Days"], ["status", "Status"]];
+  const recs = (rv.recommendations || []).map((rec, i) => {
+    const added = state.addedRecs.includes(i);
+    const nts = rec.new_tasks || [];
+    const eds = (rec.edits || []).filter(e => e && state.tasks.some(t => t.id === e.task_id));
+    const editBlock = eds.map(e => {
+      const t = state.tasks.find(x => x.id === e.task_id);
+      const rows = FIELDS.filter(([k]) => e[k] != null && e[k] !== "" && (added || String(e[k]) !== String(t[k])));
+      return el("div", { class: "nt chg" }, el("span", { class: "tag", text: "Change task" }), el("strong", { text: t.title }),
+        rows.map(([k, label]) => el("div", {}, label + ": ", added ? null : el("del", { text: String(t[k] ?? "") }), added ? null : " → ", el("ins", { text: String(e[k]) }))));
+    });
+    const newBlock = nts.map(t => el("div", { class: "nt" }, el("span", { class: "tag", text: "New task" }), el("strong", { text: t.title }), el("div", { class: "muted", text: "Success: " + t.success_criterion })));
+    const what = [eds.length && `change ${eds.length} task${eds.length > 1 ? "s" : ""}`, nts.length && `add ${nts.length} task${nts.length > 1 ? "s" : ""}`].filter(Boolean).join(", ");
+    const apply = async () => {
+      let base = Date.now();
+      for (const e of eds) {
+        const f = { changedByReview: true };
+        for (const [k] of FIELDS) if (e[k] != null && e[k] !== "") f[k] = k === "est_days" ? (Number(e[k]) || 1) : String(e[k]);
+        if (f.status && !STATUSES.includes(f.status)) delete f.status;
+        await patchTask(e.task_id, f);
+      }
+      const ms = allMilestones();
+      await Promise.all(nts.map(t => putTask({ id: uid("r"), order: base++, milestone: ms.includes(t.milestone) ? t.milestone : (ms[0] || "Plan"), title: String(t.title), method: String(t.method || ""), success_criterion: String(t.success_criterion || ""), est_days: Number(t.est_days) || 1, status: "To do", fromReview: true, assignee: null, due: null, createdBy: me.id })));
+      if (await putMeta({ addedRecs: [...state.addedRecs, i] })) logAct(`applied the recommendation "${rec.change}"`);
+    };
+    return el("article", { class: "rec" },
+      el("span", { class: "label", text: `Recommendation ${i + 1}` }),
+      el("h3", { text: rec.change }),
+      el("p", { class: "muted", style: "font-size:.9rem", text: rec.reason }),
+      (eds.length || nts.length) ? el("div", { class: "newtasks" }, editBlock, newBlock) : el("p", { class: "muted", style: "font-size:.85rem", text: "Advice only; nothing to change on the board." }),
+      what ? el("div", {}, added ? el("button", { class: "btn small", type: "button", disabled: true }, "Applied to plan")
+        : canAdmin ? el("button", { class: "btn small primary", type: "button", onclick: e => { e.currentTarget.disabled = true; apply(); } }, "Apply: " + what)
+        : el("p", { class: "muted", style: "font-size:.85rem", text: "Waiting for a Lead to approve." })) : null);
+  });
+
+  return [head,
+    el("div", { class: "diag" }, el("div", { class: "row" }, el("span", { class: `pill ${pillClass(rv.status)}`, text: "Status: " + rv.status }), rv.by ? el("span", { class: "ms-sub", text: `Run by ${fullName(rv.by)} · ${ago(rv.at)}` }) : null), el("p", { text: rv.diagnosis })),
+    el("div", { class: "recs" }, recs),
+    state.addedRecs.length ? el("div", { class: "row" }, el("button", { class: "btn", type: "button", onclick: () => setStep("plan") }, "See updated plan")) : null];
+}
+
+/* ---------- Notes ---------- */
+function notesView() {
+  const head = el("div", { class: "panel-head" },
+    el("div", {}, el("span", { class: "label", text: "Project notes" }), el("h2", { text: "Lab notebook" }), el("p", { class: "muted", text: "Protocols, observations, decisions and reading notes, each optionally linked to a task. The AI review reads observations and decisions, plus protocols linked to tasks that missed their criteria or are blocked." })),
+    canWrite ? el("div", { class: "row" }, el("button", { class: "btn primary", type: "button", onclick: () => { selectedNote = "new"; newNoteTask = null; render(); } }, "+ New note")) : null);
+
+  const counts = k => k === "All" ? state.notes.length : state.notes.filter(n => n.kind === k).length;
+  const chips = el("div", { class: "chips", role: "group", "aria-label": "Filter notes by type" },
+    ["All", ...KINDS].map(k => el("button", { class: "chip", type: "button", "aria-pressed": noteFilter === k ? "true" : "false", onclick: () => { noteFilter = k; render(); } }, `${k} · ${counts(k)}`)));
+
+  const nq = noteQ.trim().toLowerCase();
+  const list = state.notes.filter(n => (noteFilter === "All" || n.kind === noteFilter)
+      && (noteTaskF === "all" || (noteTaskF === "none" ? !n.taskId : n.taskId === noteTaskF))
+      && (!nq || (String(n.title || "") + "\n" + String(n.body || "")).toLowerCase().includes(nq))).slice().sort((a, b) => (b.updated || "").localeCompare(a.updated || "") || (b.ts || 0) - (a.ts || 0));
+  const meta = n => n.updated + (n.updatedBy ? " · " + fullName(n.updatedBy) : "") + (n.taskId && taskTitle(n.taskId) ? " · " + taskTitle(n.taskId) : " · whole project");
+  const delBtn = n => {
+    let armed = false;
+    const b = el("button", { class: "btn small danger", type: "button", onclick: async () => {
+      if (!armed) { armed = true; b.textContent = "Click again to delete"; return; }
+      if (await save(db.doc("notes/" + n.id).delete())) { logAct(`deleted the note "${n.title}"`); selectedNote = null; noteEditing = false; render(); }
+    }}, "Delete");
+    return b;
+  };
+  const noteCard = n => {
+    const open = selectedNote === n.id;
+    if (open && noteEditing) return el("article", { class: "note-card open", id: "note-" + n.id }, noteForm(n));
+    const headBtn = el("button", { class: "note-head", type: "button", "aria-expanded": open ? "true" : "false", onclick: () => { selectedNote = open ? null : n.id; noteEditing = false; render(); } },
+      el("span", { class: "top" }, el("strong", {}, hl(n.title || "Untitled note", nq)), el("span", { class: "right" }, el("span", { class: "kind", text: n.kind }), chevron())),
+      el("span", { class: "label", text: meta(n) }),
+      open ? null : el("p", { class: "preview" }, hl(snippet(n.body || "", nq), nq)));
+    if (!open) return el("article", { class: "note-card", id: "note-" + n.id }, headBtn);
+    const flash = noteFlash; noteFlash = "";
+    return el("article", { class: "note-card open", id: "note-" + n.id }, headBtn,
+      el("div", { class: "note-open" },
+        flash ? el("p", { class: "saved", role: "status", text: flash }) : null,
+        el("div", { class: "note-body" }, n.body ? hl(n.body, nq) : "No text yet."),
+        canWrite ? el("div", { class: "row" }, el("button", { class: "btn small", type: "button", onclick: () => { noteEditing = true; render(); } }, "Edit"), delBtn(n)) : null));
+  };
+  const newCard = selectedNote === "new" && canWrite
+    ? el("article", { class: "note-card open", id: "note-new" }, noteForm({ id: null, kind: newNoteTask ? "Observation" : "Protocol", title: "", body: "", taskId: newNoteTask }))
+    : null;
+  const listEl = el("div", { class: "note-list" }, newCard,
+    list.length ? list.map(noteCard) : (newCard ? null : el("p", { class: "muted", text: state.notes.length ? "No notes match these filters." : "No notes yet. Start with your protocol or first observation." })));
+  const nActive = nq || noteFilter !== "All" || noteTaskF !== "all";
+  const nfilters = el("div", { class: "filters", role: "search", "aria-label": "Filter notes" },
+    el("input", { id: "f-note-q", type: "search", class: "fsearch", placeholder: "Search note titles and text…", "aria-label": "Search notes", value: noteQ, oninput: e => { noteQ = e.target.value; render(true); } }),
+    el("select", { id: "f-note-task", "aria-label": "Filter by linked task", onchange: e => { noteTaskF = e.target.value; render(true); } },
+      [["all", "Any linked task"], ["none", "Whole project (no task)"], ...state.tasks.filter(t => state.notes.some(n => n.taskId === t.id)).map(t => [t.id, t.title])].map(([v, l]) => el("option", { value: v, selected: v === noteTaskF }, l))),
+    nActive ? el("span", { class: "fcount" }, `Showing ${list.length} of ${state.notes.length} notes · `, el("button", { class: "linkbtn", type: "button", onclick: () => { noteQ = ""; noteFilter = "All"; noteTaskF = "all"; render(); } }, "Clear filters")) : null);
+  return [head, nfilters, chips, listEl];
+}
+
+function hl(text, q) {
+  text = String(text || "");
+  if (!q) return text;
+  const out = [], low = text.toLowerCase();
+  let i = 0, j;
+  while ((j = low.indexOf(q, i)) !== -1) { if (j > i) out.push(text.slice(i, j)); out.push(el("mark", { text: text.slice(j, j + q.length) })); i = j + q.length; }
+  out.push(text.slice(i));
+  return out;
+}
+function snippet(body, q) {
+  const j = q ? body.toLowerCase().indexOf(q) : -1;
+  if (j < 90) return body;
+  return "…" + body.slice(Math.max(0, j - 60));
+}
+function chevron() {
+  const s = el("span", { class: "chev", "aria-hidden": "true" });
+  s.innerHTML = '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  return s;
+}
+
+function noteForm(n) {
+  const msg = el("p", { class: "status", role: "status" });
+  const form = el("form", { class: "grid note-editor", onsubmit: async e => {
+    e.preventDefault();
+    const f = new FormData(form);
+    const data = { kind: f.get("kind"), title: f.get("title").trim(), body: f.get("body"), taskId: f.get("task") || null, updated: today(), ts: Date.now(), updatedBy: me.id };
+    if (!data.title) { msg.className = "status err"; msg.textContent = "Give the note a title."; return; }
+    const id = n.id || uid("n");
+    const old = n.id ? state.notes.find(x => x.id === n.id) : null;
+    if (!(await save(db.doc("notes/" + id).set({ projectId: curPid, ...data, author: (old && old.author) || me.id })))) return;
+    logAct(n.id ? `edited the note "${data.title}"` : `added the note "${data.title}"`);
+    noteFlash = n.id ? "Changes saved." : "Note created.";
+    selectedNote = id; newNoteTask = null; noteEditing = false; render();
+  }},
+    el("div", { class: "field wide" }, el("label", { class: "label", for: "n-title", text: "Title" }), el("input", { id: "n-title", name: "title", value: n.title, placeholder: "e.g. Strip preparation protocol" })),
+    el("div", { class: "field" }, el("label", { class: "label", for: "n-kind", text: "Type" }), el("select", { id: "n-kind", name: "kind" }, KINDS.map(k => el("option", { value: k, selected: k === n.kind }, k)))),
+    el("div", { class: "field" }, el("label", { class: "label", for: "n-task", text: "Linked task" }), el("select", { id: "n-task", name: "task" }, el("option", { value: "" }, "None (whole project)"), state.tasks.map(t => el("option", { value: t.id, selected: t.id === n.taskId }, t.title)))),
+    el("div", { class: "field wide" }, el("label", { class: "label", for: "n-body", text: "Note" }), Object.assign(el("textarea", { id: "n-body", name: "body", placeholder: "Steps, readings, what you decided and why…" }), { value: n.body || "" })),
+    el("div", { class: "row field wide" }, el("button", { class: "btn primary", type: "submit" }, n.id ? "Save changes" : "Create note"),
+      el("button", { class: "btn", type: "button", onclick: () => { noteEditing = false; if (!n.id) selectedNote = null; newNoteTask = null; render(); } }, "Cancel"), msg));
+  return el("div", { class: "note-open" }, el("span", { class: "label", text: n.id ? "Editing · last updated " + n.updated : "New note" }), form);
+}
+
+/* ---------- Projects home ---------- */
+function projectStats(p) {
+  const T = all.tasks.filter(t => pidOf(t) === p.id), R = all.results.filter(x => pidOf(x) === p.id);
+  const done = T.filter(t => t.status === "Done").length;
+  const last = Math.max(p.updatedAt || 0, p.createdAt || 0, ...T.map(t => t.updatedAt || 0), ...R.map(x => x.ts || 0));
+  const as = (p.assessment && Array.isArray(p.assessment.assumptions)) ? p.assessment.assumptions : [];
+  const ev = all.evidence.filter(e => pidOf(e) === p.id && e.status === "Confirmed" && as.some(a => a.id === e.aid)).length;
+  return { T, R, done, last, as, ev, gs: goalStatus(T, R) };
+}
+async function newProject() {
+  const id = uid("p");
+  curPid = id;
+  if (await save(db.doc("project/" + id).set(clean({ idea: { ...BLANK_IDEA }, assessment: null, milestones: [], review: null, addedRecs: [], createdAt: Date.now(), createdBy: me.id, ...stamp() })))) {
+    logAct("started a new project", null, id);
+    openProject(id);
+    setStep("idea");
+  } else curPid = null;
+}
+function homeView() {
+  const head = el("div", { class: "panel-head" },
+    el("div", {}, el("span", { class: "label", text: "All projects" }), el("h2", { text: "Your research projects" }),
+      el("p", { class: "muted", text: "Each project has its own idea check, plan, results, dashboard and notes. Everyone on the team can see every project." })),
+    canAdmin ? el("div", { class: "row" }, el("button", { class: "btn primary", type: "button", onclick: newProject }, "+ New project")) : null);
+  if (!all.projects.length) return [head, el("div", { class: "empty" }, el("p", { text: canAdmin ? "No projects yet. Start one to run your first idea check." : "No projects yet. A Lead can start one." }))];
+  const cards = all.projects.map(p => ({ p, st: projectStats(p) })).sort((a, b) => b.st.last - a.st.last).map(({ p, st }) => {
+    const a = p.assessment;
+    const pc = pct(st.done, st.T.length);
+    const met = st.R.filter(x => x.criterion_met === "Yes").length;
+    return el("button", { class: "proj-card", type: "button", onclick: () => openProject(p.id) },
+      el("span", { class: "label", text: [p.idea && p.idea.field, p.idea && p.idea.goal].filter(Boolean).join(" · ") || "New project" }),
+      el("strong", { class: "pt", text: (p.idea && p.idea.title) || "Untitled project" }),
+      el("span", { class: "row", style: "gap:6px" },
+        a ? el("span", { class: `pill ${pillClass(a.verdict)}`, text: `${a.verdict} · ${clamp(a.viability_score)}/100` }) : el("span", { class: "pill none", text: "Idea not checked yet" }),
+        st.T.length ? el("span", { class: `pill ${pillClass(st.gs)}`, text: st.gs }) : null),
+      st.T.length ? el("span", { class: "pbar", role: "img", "aria-label": `${pc}% of tasks done` }, el("i", { style: `width:${pc}%` })) : null,
+      el("span", { class: "ms-sub", text: st.T.length ? `${st.done} of ${st.T.length} tasks done · goals met ${met} of ${st.R.length} tested` : "No plan yet" }),
+      st.as.length ? el("span", { class: "ms-sub", text: `Commercial case: ${st.ev} of ${st.as.length} assumptions confirmed` }) : null,
+      el("span", { class: "ms-sub", text: st.last > 1e12 ? "Updated " + ago(st.last) : "" }));
+  });
+  return [head, el("div", { class: "proj-grid" }, cards)];
+}
+
+/* ---------- Commercial case: assumptions, evidence, unit economics ---------- */
+const ASSUMPTION_SHAPE = '{"id":"a1","category":"Customer|Problem|Price|Market size|Competition|Channel|Regulation","claim":"1 sentence","basis":"how you estimated it","confidence":"Low|Medium|High","check":"what evidence would confirm or reject it","search":"a precise search query","where":"patents|scholar|web"}';
+const CUR = { INR: "₹", USD: "$", EUR: "€" };
+function searchUrl(x) {
+  const q = encodeURIComponent(x.search || x.claim || "");
+  return x.where === "patents" ? "https://patents.google.com/?q=" + q : x.where === "scholar" ? "https://scholar.google.com/scholar?q=" + q : "https://www.google.com/search?q=" + q;
+}
+const whereLabel = w => w === "patents" ? "Google Patents" : w === "scholar" ? "Google Scholar" : "the web";
+function assumptionsOf(a) { return (a && Array.isArray(a.assumptions)) ? a.assumptions.filter(x => x && x.id && x.claim) : []; }
+const evOf = aid => state.evidence.find(e => e.aid === aid) || {};
+function evidenceCounts(a) {
+  const list = assumptionsOf(a);
+  return { n: list.length, conf: list.filter(x => evOf(x.id).status === "Confirmed").length, rej: list.filter(x => evOf(x.id).status === "Rejected").length };
+}
+function evidencePill() {
+  const c = evidenceCounts(state.assessment);
+  if (!c.n) return null;
+  return el("span", { class: `pill ${c.rej ? "bad" : c.conf === c.n ? "good" : "warn"}`, text: `Commercial case: ${c.conf} of ${c.n} assumptions confirmed${c.rej ? `, ${c.rej} rejected` : ""}` });
+}
+function commercialNote(a) {
+  const c = evidenceCounts(a);
+  if (!c.n) return el("p", { class: "ms-sub", text: "Commercial potential is an AI estimate." });
+  return el("p", { class: "ms-sub", text: `Commercial potential is an AI estimate: ${c.conf} of its ${c.n} assumptions are backed by evidence${c.rej ? `, ${c.rej} rejected` : ""}. See the commercial case below.` });
+}
+async function setEvidence(x, status) {
+  const link = (document.getElementById("ev-link-" + x.id) || {}).value || "";
+  const note = (document.getElementById("ev-note-" + x.id) || {}).value || "";
+  if (status === "Confirmed" && !link.trim() && !note.trim()) { toast("Add a link or a note with the evidence first."); return; }
+  const ok = await save(db.doc("evidence/" + curPid + "__" + x.id).set(clean({ projectId: curPid, aid: x.id, status, link: link.trim(), note: note.trim(), by: me.id, ts: Date.now() })));
+  if (ok) { logAct(status === "Unchecked" ? `cleared the evidence for "${x.claim}"` : `marked the assumption "${x.claim}" as ${status.toLowerCase()}`); dirty.clear(); render(); }
+}
+function commercialSection(a) {
+  const list = assumptionsOf(a);
+  const c = evidenceCounts(a);
+  const status = aiStatus("rescore");
+  const rescore = el("button", { class: "btn small", type: "button", disabled: aiBusy === "rescore", onclick: async () => {
+    const lines = list.map(x => { const e = evOf(x.id); return `- ${x.id} [${x.category}] ${x.claim} | basis: ${x.basis} | evidence: ${e.status || "Unchecked"}${e.note ? " – " + e.note : ""}${e.link ? " (" + e.link + ")" : ""}`; }).join("\n");
+    const ec = state.econ;
+    const out = await ask(
+`You are a research commercialisation advisor. Re-score the commercial potential of this idea using the evidence the team has gathered.
+Idea: ${state.idea.title}. ${state.idea.text}
+Goal: ${state.idea.goal}
+Previous commercial potential: ${clamp(a.commercial_potential && a.commercial_potential.score)}/100
+Assumptions and evidence:
+${lines}
+${ec ? `Unit economics entered by the team: price ${ec.price} ${ec.currency} per unit, cost ${ec.cost} per unit, ${ec.units} units per year.` : ""}
+Raise the score only where evidence confirms an assumption; lower it where evidence rejects one. Keep ids for existing assumptions; you may add up to 2 new ones (ids continuing the sequence) if the evidence reveals a new risk.
+Reply with only JSON: {"commercial_potential":{"score":0-100,"reason":"1-2 sentences that mention the evidence"},"viability_score":0-100,"assumptions":[${ASSUMPTION_SHAPE}]}`, "rescore");
+    if (!out || !out.commercial_potential) return;
+    if (await putMeta({ assessment: { ...a, commercial_potential: out.commercial_potential, viability_score: out.viability_score ?? a.viability_score, assumptions: Array.isArray(out.assumptions) && out.assumptions.length ? out.assumptions : a.assumptions } }))
+      logAct(`re-scored commercial potential: ${clamp(out.commercial_potential.score)}/100`);
+  }}, "Re-score with evidence");
+
+  const rows = list.map(x => {
+    const e = evOf(x.id);
+    const st = e.status || "Unchecked";
+    return el("article", { class: "assume" + (st === "Confirmed" ? " ok" : st === "Rejected" ? " no" : "") },
+      el("div", { class: "assume-top" },
+        el("span", { class: "tag", text: x.category || "Assumption" }),
+        el("span", { class: "ms-sub", text: `AI confidence: ${x.confidence || "?"}` }),
+        el("span", { class: `pill ${st === "Confirmed" ? "good" : st === "Rejected" ? "bad" : "none"}`, text: st === "Unchecked" ? "Not checked" : st })),
+      el("strong", { text: x.claim }),
+      x.basis ? el("p", { class: "muted", style: "font-size:.85rem", text: "Basis: " + x.basis }) : null,
+      el("p", { style: "font-size:.85rem" }, "To check: " + (x.check || "find evidence for or against this") + " ",
+        el("a", { href: searchUrl(x), target: "_blank", rel: "noopener", text: `Search ${whereLabel(x.where)} ↗` })),
+      (e.link || e.note) ? el("p", { class: "ev-rec" }, el("span", { class: "label", text: `Evidence · ${fullName(e.by)} · ${ago(e.ts)}` }),
+        e.note ? el("span", { text: e.note }) : null,
+        e.link && /^https?:\/\//i.test(e.link) ? el("a", { href: e.link, target: "_blank", rel: "noopener", text: e.link }) : e.link ? el("span", { class: "ms-sub", text: e.link }) : null) : null,
+      canWrite ? el("div", { class: "ev-form" },
+        el("input", { id: "ev-link-" + x.id, type: "url", placeholder: "Link to the source (report, patent, paper, quote)", "aria-label": "Evidence link", value: e.link || "" }),
+        el("input", { id: "ev-note-" + x.id, placeholder: "What it shows, e.g. 'Distributor quote: ₹45 per test'", "aria-label": "Evidence note", value: e.note || "" }),
+        el("div", { class: "row" },
+          el("button", { class: "btn small", type: "button", onclick: () => setEvidence(x, "Confirmed") }, "Mark confirmed"),
+          el("button", { class: "btn small", type: "button", onclick: () => setEvidence(x, "Rejected") }, "Mark rejected"),
+          st !== "Unchecked" ? el("button", { class: "linkbtn", type: "button", onclick: () => setEvidence(x, "Unchecked") }, "Clear") : null)) : null);
+  });
+
+  return el("section", { class: "commercial" },
+    el("div", { class: "panel-head" }, el("div", {},
+      el("h3", { text: "Commercial case" }),
+      el("p", { class: "muted", style: "font-size:.9rem", text: "The commercial score is the AI's estimate. These are the assumptions behind it. Check each one, record what you find, and re-score once you have evidence." })),
+      list.length && canAdmin ? el("div", { class: "row" }, rescore, status) : null),
+    list.length ? el("div", { class: "row" }, el("span", { class: `pill ${c.rej ? "bad" : c.conf === c.n ? "good" : "warn"}`, text: `Evidence-backed: ${c.conf} of ${c.n}` }), c.rej ? el("span", { class: "ms-sub", text: `${c.rej} rejected. ${canAdmin ? "Re-score so the estimate reflects it." : "A Lead can re-score the estimate."}` }) : null) : null,
+    list.length ? el("div", { class: "assumes" }, rows) : el("div", { class: "empty" }, el("p", { text: canAdmin ? "This assessment was made before assumptions were tracked. Re-run the idea check to get them." : "A Lead can re-run the idea check to list the assumptions behind this score." })),
+    econCard());
+}
+function econCard() {
+  const e = state.econ || {};
+  const out = el("div", { class: "econ-out" });
+  const val = id => Number((document.getElementById(id) || {}).value || 0);
+  const fmt = (n, sym) => (n < 0 ? "−" : "") + sym + Math.abs(Math.round(n)).toLocaleString(sym === "₹" ? "en-IN" : "en-US");
+  const calc = () => {
+    const sym = CUR[(document.getElementById("ec-cur") || {}).value] || "₹";
+    const price = val("ec-price"), cost = val("ec-cost"), units = val("ec-units");
+    if (!price || !units) { out.replaceChildren(el("p", { class: "ms-sub", text: "Enter a price and yearly volume to see margin and revenue." })); return; }
+    const m = price - cost, mp = price ? m / price * 100 : 0;
+    const cell = (l, v, cls) => el("div", { class: "econ-cell" + (cls ? " " + cls : "") }, el("span", { class: "label", text: l }), el("strong", { text: v }));
+    out.replaceChildren(
+      cell("Margin per unit", fmt(m, sym), m < 0 ? "neg" : ""),
+      cell("Gross margin", `${Math.round(mp)}%`, m < 0 ? "neg" : ""),
+      cell("Revenue per year", fmt(price * units, sym)),
+      cell("Gross profit per year", fmt(m * units, sym), m < 0 ? "neg" : ""));
+  };
+  const inp = (id, label, v, extra = {}) => el("div", { class: "field" }, el("label", { class: "label", for: id, text: label }), el("input", { id, type: "number", min: "0", step: "any", value: v ?? "", oninput: calc, ...extra }));
+  const form = el("form", { class: "econ-form", onsubmit: async ev => {
+    ev.preventDefault();
+    const data = { projectId: curPid, currency: document.getElementById("ec-cur").value, price: val("ec-price"), cost: val("ec-cost"), units: val("ec-units"), by: me.id, ts: Date.now() };
+    if (await save(db.doc("econ/" + curPid).set(data))) { toast("Unit economics saved for the team."); logAct("updated the unit economics"); dirty.clear(); }
+  }},
+    el("div", { class: "field" }, el("label", { class: "label", for: "ec-cur", text: "Currency" }), el("select", { id: "ec-cur", onchange: calc }, Object.keys(CUR).map(k => el("option", { value: k, selected: k === (e.currency || "INR") }, `${CUR[k]} ${k}`)))),
+    inp("ec-price", "Price per unit", e.price), inp("ec-cost", "Cost per unit", e.cost), inp("ec-units", "Units per year", e.units),
+    canWrite ? el("div", { class: "field", style: "align-self:end" }, el("button", { class: "btn small primary", type: "submit" }, "Save for the team")) : null);
+  lock(form, canWrite);
+  requestAnimationFrame(calc);
+  return el("div", { class: "econ" },
+    el("h3", { text: "Unit economics" }),
+    el("p", { class: "muted", style: "font-size:.88rem", text: e.ts ? `Your team's own numbers, last saved by ${fullName(e.by)} ${ago(e.ts)}. The re-score uses them.` : "Your team's own numbers, not the AI's. The re-score uses them once saved." }),
+    form, out);
+}
+
+/* ---------- Related directions (suggest pivots from the team's own work) ---------- */
+const DIR_THRESHOLD = 50;
+const SUBS = [["fit", "Fit with your work"], ["momentum", "Research and funding momentum"], ["commercial_pull", "Commercial pull"], ["room", "Room to contribute"], ["feasibility", "Feasibility"]];
+let dirOpen = false;
+function lowViability(a) { return !!a && (clamp(a.viability_score) < DIR_THRESHOLD || a.verdict === "Rethink"); }
+async function startFromDirection(d) {
+  const from = curPid, field = state.idea.field, goal = state.idea.goal;
+  const id = uid("p");
+  const idea = { title: String(d.title || "New direction"), text: [d.pitch, d.first_experiment ? "First experiment: " + d.first_experiment : ""].filter(Boolean).join(" "), field, goal };
+  curPid = id;
+  if (await save(db.doc("project/" + id).set(clean({ idea, assessment: null, milestones: [], review: null, addedRecs: [], createdAt: Date.now(), createdBy: me.id, fromProject: from, ...stamp() })))) {
+    logAct(`started "${idea.title}" from a suggested direction`, null, id);
+    openProject(id); setStep("idea");
+    toast("New project created. Run the idea check to score it.");
+  } else curPid = from;
+}
+function directionsSection(a) {
+  const low = lowViability(a);
+  const d = state.directions;
+  const corpus = state.corpus;
+  if (!low && !dirOpen && !d) {
+    return el("section", { class: "dirs collapsed" },
+      el("div", { class: "row", style: "justify-content:space-between" },
+        el("div", {}, el("h3", { text: "Related directions" }), el("p", { class: "muted", style: "font-size:.88rem", text: `This idea scored above ${DIR_THRESHOLD}, so alternatives aren't suggested automatically.` })),
+        el("button", { class: "btn small", type: "button", onclick: () => { dirOpen = true; render(true); } }, "Explore related directions")));
+  }
+  const status = aiStatus("dirs");
+  const run = el("button", { class: "btn small" + (d ? "" : " primary"), type: "button", disabled: aiBusy === "dirs", onclick: async () => {
+    const pubs = corpus.slice(0, 40).map(p => `- ${p.title}${p.year ? " (" + p.year + ")" : ""}${p.abstract ? ": " + String(p.abstract).slice(0, 300).replace(/\s+/g, " ") : ""}`).join("\n");
+    const out = await ask(
+`You are a research strategy advisor. A research group's idea scored ${clamp(a.viability_score)}/100 (${a.verdict}). Suggest better research directions that build on what this group already knows. Today is ${today()}.
+Current idea: ${state.idea.title}. ${state.idea.text}
+Field: ${state.idea.field || "not given"}; goal: ${state.idea.goal}
+Why it scored as it did: ${a.summary || ""} Challenges: ${(a.challenges || []).join("; ")}
+${pubs ? "The group's own publications:\n" + pubs : "The group has not listed any publications, so infer expertise from the idea only and keep fit scores conservative."}
+
+Suggest 3-5 directions in related or adjacent fields, ranked best first. Favour directions where research and funding are growing, commercial interest is rising, there is still room for a new contribution, and this group's existing methods apply.
+You cannot browse: label every trend or market claim as an estimate and give a search the team can use to check it. Never invent statistics, papers, companies or deals.
+Reply with only JSON: {"expertise_summary":"2 sentences on what the publications show the group is good at","suggestions":[{"id":"d1","title":"short","pitch":"2 sentences","builds_on":["exact titles copied from the publication list"],"scores":{"fit":0-100,"momentum":0-100,"commercial_pull":0-100,"room":0-100,"feasibility":0-100},"overall":0-100,"reasons":["3-4 short reasons"],"trend_checks":[{"claim":"an estimate to verify","search":"precise query","where":"patents|scholar|web"}],"first_experiment":"1-2 sentences: the cheapest test of this direction","risk":"1 sentence"}]}`, "dirs");
+    if (!out || !Array.isArray(out.suggestions)) return;
+    const titles = new Set(corpus.map(p => String(p.title).trim().toLowerCase()));
+    const suggestions = out.suggestions.slice(0, 5).map((s, k) => ({ ...s, id: s.id || "d" + (k + 1), builds_on: (s.builds_on || []).filter(t => titles.has(String(t).trim().toLowerCase())) }))
+      .sort((x, y) => (Number(y.overall) || 0) - (Number(x.overall) || 0));
+    if (await save(db.doc("directions/" + curPid).set(clean({ projectId: curPid, expertise_summary: out.expertise_summary || "", suggestions, pubs: corpus.length, from_score: clamp(a.viability_score), by: me.id, ts: Date.now() }))))
+      logAct(`suggested ${suggestions.length} related directions`);
+  }}, d ? "Suggest again" : "Suggest related directions");
+
+  const head = el("div", { class: "panel-head" }, el("div", {},
+      el("h3", { text: "Related directions" }),
+      el("p", { class: "muted", style: "font-size:.9rem", text: low ? `This idea scored below ${DIR_THRESHOLD}. Here are directions that build on your team's own work, ranked by fit, momentum, commercial pull, room to contribute and feasibility.` : "Directions that build on your team's own work, ranked by fit, momentum, commercial pull, room to contribute and feasibility." })),
+    canWrite ? el("div", { class: "row" }, run, status) : null);
+  const corpusLine = el("p", { class: "ms-sub" }, corpus.length ? `Based on ${corpus.length} team publication${corpus.length === 1 ? "" : "s"}. ` : "No team publications yet, so suggestions can only guess at your expertise. ",
+    el("button", { class: "linkbtn", type: "button", onclick: () => setStep("team") }, corpus.length ? "Manage publications" : "Add your publications on the Team tab"));
+
+  if (!d) return el("section", { class: "dirs" + (low ? " low" : "") }, head, corpusLine,
+    el("div", { class: "empty" }, el("p", { text: canWrite ? "No suggestions yet. Add your team's publications first for the best results, then ask for suggestions." : "No suggestions yet. A Researcher or Lead can generate them." })));
+
+  const cards = (d.suggestions || []).map((s, k) => el("article", { class: "dir" },
+    el("div", { class: "dir-top" }, el("span", { class: "label", text: `#${k + 1}` }), el("span", { class: "dir-score" }, el("strong", { text: clamp(s.overall) }), el("span", { class: "ms-sub", text: "/100" }))),
+    el("h3", { text: s.title }),
+    el("p", { text: s.pitch || "" }),
+    el("div", { class: "subbars" }, SUBS.map(([key, label]) => el("div", { class: "subbar" }, el("span", { text: label }), el("span", { class: "track" }, el("i", { style: `width:${clamp(s.scores && s.scores[key])}%` })), el("b", { text: clamp(s.scores && s.scores[key]) })))),
+    (s.builds_on || []).length ? el("div", {}, el("span", { class: "label", text: "Builds on your work" }), el("ul", { class: "clean", style: "font-size:.86rem" }, s.builds_on.map(t => el("li", { text: t })))) : el("p", { class: "ms-sub", text: "Not tied to a specific team publication." }),
+    el("div", {}, el("span", { class: "label", text: "Why" }), el("ul", { class: "clean", style: "font-size:.88rem" }, (s.reasons || []).map(r => el("li", { text: r })))),
+    (s.trend_checks || []).length ? el("div", {}, el("span", { class: "label", text: "Trend estimates to check" }), el("ul", { class: "clean", style: "font-size:.86rem" }, s.trend_checks.map(c => el("li", {}, c.claim + " ", el("a", { href: searchUrl(c), target: "_blank", rel: "noopener", text: `Search ${whereLabel(c.where)} ↗` }))))) : null,
+    s.first_experiment ? el("p", { class: "ev-rec" }, el("span", { class: "label", text: "Cheapest first test" }), el("span", { text: s.first_experiment })) : null,
+    s.risk ? el("p", { class: "ms-sub", text: "Risk: " + s.risk }) : null,
+    canAdmin ? el("div", {}, el("button", { class: "btn small primary", type: "button", onclick: e => { e.currentTarget.disabled = true; startFromDirection(s); } }, "Start as a new project")) : el("p", { class: "ms-sub", text: "A Lead can start this as a new project." })));
+
+  return el("section", { class: "dirs" + (low ? " low" : "") }, head, corpusLine,
+    d.expertise_summary ? el("div", { class: "diag" }, el("span", { class: "label", text: "What your publications show" }), el("p", { text: d.expertise_summary })) : null,
+    el("p", { class: "ms-sub", text: `Suggested by ${fullName(d.by)} ${ago(d.ts)} from ${d.pubs || 0} publications. Momentum and commercial scores are AI estimates until checked.` }),
+    el("div", { class: "dir-grid" }, cards));
+}
+
+/* Team publications (the group's corpus) */
+function corpusSection() {
+  const list = state.corpus.slice().sort((a, b) => (Number(b.year) || 0) - (Number(a.year) || 0));
+  const msg = el("p", { class: "status", role: "status" });
+  const add = el("form", { class: "grid", onsubmit: async e => {
+    e.preventDefault();
+    const f = new FormData(add);
+    const title = f.get("title").trim();
+    if (!title) { msg.className = "status err"; msg.textContent = "Add the publication's title."; return; }
+    if (await save(db.collection("corpus").add(clean({ title, year: Number(f.get("year")) || null, link: f.get("link").trim(), abstract: f.get("abstract").trim(), addedBy: me.id, ts: Date.now() })))) { logAct(`added the publication "${title}"`); dirty.clear(); render(); }
+  }},
+    el("div", { class: "field wide" }, el("label", { class: "label", for: "cp-title", text: "Title" }), el("input", { id: "cp-title", name: "title", placeholder: "Paper, thesis, patent or report title" })),
+    el("div", { class: "field" }, el("label", { class: "label", for: "cp-year", text: "Year" }), el("input", { id: "cp-year", name: "year", type: "number", min: "1950", max: "2100" })),
+    el("div", { class: "field" }, el("label", { class: "label", for: "cp-link", text: "Link (DOI or URL)" }), el("input", { id: "cp-link", name: "link" })),
+    el("div", { class: "field wide" }, el("label", { class: "label", for: "cp-abs", text: "Abstract or 2-line summary" }), Object.assign(el("textarea", { id: "cp-abs", name: "abstract", style: "min-height:70px" }), {})),
+    el("div", { class: "row field wide" }, el("button", { class: "btn small primary", type: "submit" }, "Add publication"), msg));
+  const bulkMsg = el("p", { class: "status", role: "status" });
+  const bulk = el("form", { class: "grid", onsubmit: async e => {
+    e.preventDefault();
+    const lines = String(new FormData(bulk).get("bulk") || "").split("\n").map(s => s.trim()).filter(Boolean).slice(0, 50);
+    if (!lines.length) { bulkMsg.className = "status err"; bulkMsg.textContent = "Paste at least one title."; return; }
+    let n = 0;
+    for (const line of lines) {
+      const m = line.match(/^(.*?)[\s,(]*((?:19|20)\d{2})\)?\.?$/);
+      const title = (m ? m[1] : line).replace(/[\s,(]+$/, "").trim(), year = m ? Number(m[2]) : null;
+      if (title && await save(db.collection("corpus").add(clean({ title, year, link: "", abstract: "", addedBy: me.id, ts: Date.now() + n })))) n++;
+    }
+    logAct(`added ${n} publications`); dirty.clear(); render();
+  }},
+    el("div", { class: "field wide" }, el("label", { class: "label", for: "cp-bulk", text: "Or paste a list, one title per line (a year at the end is picked up)" }), Object.assign(el("textarea", { id: "cp-bulk", name: "bulk", placeholder: "Low-cost colorimetric sensing of nitrate on paper (2024)\nSmartphone imaging for water quality field tests (2023)", style: "min-height:90px" }), {})),
+    el("div", { class: "row field wide" }, el("button", { class: "btn small", type: "submit" }, "Add all"), bulkMsg));
+  const rows = list.length ? list.map(p => el("li", { class: "pub" },
+    el("div", {}, el("strong", { text: p.title }), el("span", { class: "ms-sub", text: [p.year, fullName(p.addedBy) && "added by " + fullName(p.addedBy)].filter(Boolean).join(" · ") }),
+      p.abstract ? el("p", { class: "muted", style: "font-size:.84rem", text: p.abstract }) : null,
+      p.link && /^https?:\/\//i.test(p.link) ? el("a", { href: p.link, target: "_blank", rel: "noopener", style: "font-size:.82rem;overflow-wrap:anywhere", text: p.link }) : null),
+    canWrite ? el("button", { class: "linkbtn", type: "button", onclick: () => save(db.doc("corpus/" + p.id).delete()) }, "Remove") : null)) : [el("li", { class: "muted", text: "No publications yet." })];
+  return el("section", { class: "corpus" },
+    el("h3", { text: `Team publications · ${list.length}` }),
+    el("p", { class: "muted", style: "font-size:.88rem", text: "Your group's published work. The Idea check uses it to suggest related directions when an idea scores low. Add only work that's already public." }),
+    el("ul", { class: "pubs" }, rows),
+    canWrite ? el("details", { class: "pub-add" }, el("summary", { text: "Add publications" }), add, bulk) : null);
+}
+
+/* ---------- Team ---------- */
+function localProject() {
+  try {
+    if (localStorage.getItem("researchos-imported")) return null;
+    const s = JSON.parse(localStorage.getItem("researchos-state-v2")) || JSON.parse(localStorage.getItem("researchos-state-v1"));
+    if (s && !s.example && s.idea && s.idea.title) return s;
+  } catch {}
+  return null;
+}
+async function importLocal(s) {
+  curPid = uid("p"); rememberProject(curPid);
+  if (!(await putMeta({ idea: { ...BLANK_IDEA, ...s.idea }, assessment: s.assessment || null, milestones: s.milestones || [], review: s.review || null, addedRecs: s.addedRecs || [] }))) return;
+  const base = Date.now();
+  await Promise.all([
+    ...(s.tasks || []).map((t, k) => putTask({ ...t, order: base + k, assignee: null, due: null })),
+    ...(s.results || []).map((r, k) => save(db.doc("results/" + r.taskId).set(clean({ ...r, projectId: curPid, ts: base + k, by: me.id })))),
+    ...(s.notes || []).map(n => save(db.doc("notes/" + n.id).set(clean({ ...n, projectId: curPid, author: me.id, updatedBy: me.id }))))]);
+  try { localStorage.setItem("researchos-imported", "1"); } catch {}
+  logAct(`imported "${s.idea.title}" from their browser`);
+  toast("Imported as a new project. Everyone on the team can see it.");
+}
+function roleCell(id, m) {
+  const r = roleOf(id);
+  if (!me.owner || id === me.id || !m.id) return el("span", { class: "role", text: r });
+  const sel = el("select", { class: "move", "aria-label": "Role for " + fullName(id), onchange: async e => {
+    const role = e.target.value;
+    if (await save(db.doc("roles/" + id).set({ role, by: me.id, ts: Date.now() }))) logAct(`made {target} a ${role}`, id);
+  }}, ROLES.map(k => el("option", { value: k, selected: k === r }, k)));
+  const warn = r === "Lead" && m.platform && m.platform !== "Editor" && m.platform !== "Owner";
+  return el("div", { style: "display:grid;gap:4px;justify-items:end" }, sel, warn ? el("span", { class: "ms-sub", style: "color:var(--warn);text-align:right", text: "Needs Editor access in the Share menu" }) : null);
+}
+function teamView() {
+  const online = onlineIds();
+  const ids = [...new Set([me.id, ...state.members.map(m => m.id), ...online].filter(Boolean))];
+  const head = el("div", { class: "panel-head" }, el("div", {},
+    el("span", { class: "label", text: "Team" }), el("h2", { text: "Who's on the team" }),
+    el("p", { class: "muted", text: me.owner ? "Invite teammates with the Share button at the top of this page and give them Editor access. They join as Researchers; set each person's role below." : "Roles are set by the project owner. Your role decides what you can change here." })));
+
+  const memberRows = ids.map(id => {
+    const m = state.members.find(x => x.id === id) || {};
+    const isOn = online.includes(id);
+    const st = peerStep(id);
+    const open = state.tasks.filter(t => t.assignee === id && t.status !== "Done").length;
+    return el("div", { class: "member" }, avatar(id, "av md"),
+      el("div", { style: "min-width:0" }, el("strong", { text: fullName(id) + (id === me.id ? " (you)" : "") }),
+        el("div", { class: "sub2" }, isOn ? el("span", { class: "dot" }) : null, isOn ? `Here now${st ? " · " + (STEP_NAMES[st] || st) : ""}` : (m.lastSeen ? "Last active " + ago(m.lastSeen) : "Not seen yet"), ` · ${open} open task${open === 1 ? "" : "s"}`)),
+      roleCell(id, m));
+  });
+
+  const roles = el("div", { class: "table-wrap" }, el("table", { class: "roles" },
+    el("thead", {}, el("tr", {}, el("th", { text: "Role" }), el("th", { text: "What they can do" }))),
+    el("tbody", {}, ROLES.map(k => el("tr", {}, el("td", {}, el("strong", { text: k })), el("td", { text: ROLE_INFO[k] }))))),
+    el("p", { class: "ms-sub", style: "margin-top:8px", text: "Share the page as Editor so the role you pick here takes effect. Anyone shared as Viewer or Commenter is a read-only Observer who can't comment. The owner is always a Lead." }));
+
+  const feed = el("ul", { class: "feed" }, state.activity.length ? state.activity.map(a => el("li", {}, avatar(a.who, "av sm"),
+    el("div", {}, el("span", {}, el("strong", { text: nameOf(a.who) }), " " + String(a.text || "").replace("{target}", fullName(a.target))), el("span", { class: "when", text: ago(a.ts) + (all.projects.length > 1 && a.projectId && a.projectId !== curPid ? " · " + ((all.projects.find(p => p.id === a.projectId) || {}).idea || {}).title : "") })))) : el("li", { class: "muted", style: "display:block", text: "No activity yet." }));
+
+  const parts = [head, el("div", { class: "team-grid" },
+    el("section", {}, el("h3", { text: `People · ${ids.length}` }), el("div", {}, memberRows), el("h3", { text: "Roles" }), roles),
+    el("section", {}, el("h3", { text: "Recent activity" }), feed)), corpusSection()];
+
+  if (canAdmin) {
+    const local = localProject();
+    let armedNew = false, armedImp = false;
+    const title = state.idea.title || "Untitled project";
+    const newBtn = el("button", { class: "btn small danger", type: "button", onclick: async () => {
+      if (!armedNew) { armedNew = true; newBtn.textContent = `Click again to delete "${title}" for everyone`; return; }
+      newBtn.disabled = true;
+      await wipe(["tasks", "results", "comments", "notes", "evidence"]);
+      await db.doc("econ/" + curPid).delete().catch(() => {});
+      if (await save(db.doc("project/" + curPid).delete())) { logAct(`deleted the project "${title}"`); goHome(); }
+    }}, "Delete this project");
+    const impBtn = local ? el("button", { class: "btn small", type: "button", onclick: async () => {
+      impBtn.disabled = true; await importLocal(local); openProject(curPid);
+    }}, `Import "${local.idea.title}" from this browser as a new project`) : null;
+    parts.push(el("section", { class: "danger-zone" }, el("h3", { text: "Project admin" }),
+      el("p", { class: "muted", style: "font-size:.88rem", text: "Deleting removes this project's plan, results, notes and comments for everyone, and can't be undone." + (local ? " The import adds the project you built before sharing as a separate project." : "") }),
+      el("div", { class: "row" }, impBtn, newBtn)));
+  }
+  return parts;
+}
+
+/* ---------- Start ---------- */
+render();
+(async () => {
+  if (!window.claude || !claude.use) { mode = "nodb"; document.getElementById("aiNotice").hidden = false; render(); return; }
+  const [d, u, r, s] = await Promise.all(["db", "user", "room", "sample"].map(n => claude.use(n).catch(() => null)));
+  db = d; user = u; room = r; sample = s;
+  if (!sample) document.getElementById("aiNotice").hidden = false;
+  if (!db) { mode = "nodb"; render(); return; }
+  if (user) {
+    const m = await user.me();
+    me.id = m.id; me.owner = m.isOwner; pAdmin = m.canEdit;
+    const cw = await user.can("data.write");
+    if (cw !== null) { pWrite = cw; canWriteKnown = true; }
+  }
+  platRole = me.owner ? "Owner" : pAdmin ? "Editor" : pWrite ? "Contributor" : "Viewer";
+  recompute();
+  mode = "live";
+  subscribe();
+  if (room) { room.onPeers(ch => { peers = ch.peers; schedule(); }); room.presence({ step }).catch(() => {}); }
+  render();
+})();
+</script>
+
+</body></html>
