@@ -6,6 +6,15 @@ I'm a product-minded builder with 12+ years of shipping software in capital mark
 
 Every project here follows the same discipline: **start from a real user problem, ground it in evidence, define what success looks like, design the AI so it can be trusted, and ship something people can click through.**
 
+## ▶ Try the prototypes
+
+| Prototype | What you can do |
+|---|---|
+| [**ResearchOS**](https://research-os-beige-five.vercel.app) | Use the live app: check a research idea against real papers, generate a plan, log results and get AI-proposed next steps |
+| [**IITM Knowledge Assistant**](https://rag-whisperer-36.lovable.app/) | Ask an IIT Madras student question and get a cited answer (runs on synthetic test documents) |
+| [**YouTube Answer Mode**](https://worldofnisho-471.github.io/Product-Portfolio/YouTube%20Answer%20Mode%20Feature/YouTube-Answer-Mode-Full-Prototype.html) | Turn on Answer Mode, search a question, and jump straight to the ranked moments that answer it (mobile layout) |
+| [**Alcove**](https://worldofnisho-471.github.io/Product-Portfolio/Alcove%20AI%20Companion/Alcove-Companion_AI_Full_Prototype.html) | Go from onboarding to a conversation, then explore the Our Story, Growth and You screens |
+
 ---
 
 ## Projects at a glance
@@ -14,7 +23,7 @@ Every project here follows the same discipline: **start from a real user problem
 |---|---|---|---|
 | [ResearchOS](#researchos--ai-research-management-suite) | Research-management suite with an AI co-pilot ("Jira and Confluence for research") | Grounded idea scoring, plan generation, human-approved AI edits | Live app · pitch deck · user feedback · prototype |
 | [YouTube Answer Mode](#youtube-answer-mode--search-that-finds-the-moment) | New YouTube Search feature that jumps to the exact moment that answers a question | Moment-level ranking, explainable matches, feedback loop | 3-phase research · PRD · case study · prototype |
-| [Alcove](#alcove--an-emotionally-intelligent-ai-companion) | Voice-first AI companion that remembers your story | Long-term memory, context assembly, safety layer | PRD · prototype |
+| [Alcove](#alcove--an-emotionally-intelligent-ai-companion) | Voice-first AI companion that remembers your story | Long-term memory, context assembly, safety layer | PRD · investor deck · prototype |
 | [IITM Knowledge Assistant](#iitm-knowledge-assistant--citation-first-rag) | Citation-first RAG assistant for IIT Madras student information | Hybrid retrieval, reranking, grounding gate, evals | PRD · live prototype |
 | [Execution Policy Intelligence](#execution-policy-intelligence--lseg-hackathon-idea) | LSEG hackathon proposal for evidence-backed FX execution policy management | "Statistics determine, AI explains, human decides" | Leadership pitch deck |
 
@@ -41,9 +50,9 @@ Every project here follows the same discipline: **start from a real user problem
 📂 [`ResearchOS Research Management Suite/`](ResearchOS%20Research%20Management%20Suite/)
 - 🚀 Live app: [research-os-beige-five.vercel.app](https://research-os-beige-five.vercel.app)
 - 💻 Code: [github.com/worldofnisho-471/ResearchOS](https://github.com/worldofnisho-471/ResearchOS)
-- 📊 [Pitch deck](ResearchOS%20Research%20Management%20Suite/ResearchOS%20Pitch%20Deck.pptx)
-- 🗣️ [User feedback and actions taken](ResearchOS%20Research%20Management%20Suite/User_Feedback_for_ResearchOS_and_Actions_taken.pdf)
-- 🖥️ [Prototype (HTML)](ResearchOS%20Research%20Management%20Suite/ResearchOS.html)
+- 📊 [Pitch deck](ResearchOS%20Research%20Management%20Suite/ResearchOS%20Pitch%20Deck.pdf)
+- 🗣️ [User feedback and actions taken](ResearchOS%20Research%20Management%20Suite/User%20Feedback%20For%20ResearchOS%20And%20Actions%20Taken.pdf)
+- 🖥️ [Clickable design prototype](https://worldofnisho-471.github.io/Product-Portfolio/ResearchOS%20Research%20Management%20Suite/ResearchOS.html): the five screens without live AI (use the live app for that)
 
 **Stack:** Vercel · Supabase · Gemini API · Semantic Scholar & OpenAlex APIs
 
@@ -51,7 +60,7 @@ Every project here follows the same discipline: **start from a real user problem
 
 ## YouTube Answer Mode — search that finds the moment
 
-*AI Product Management course (HelloPM) · Assignment 1 · three phases → PRD*
+*AI Product Management course (HelloPM) · problem discovery → user research → solution → PRD*
 
 **Problem.** YouTube Search finds the video, but rarely the moment. Knowledge seekers open several videos, skip intros and scrub long timelines to find one answer. Primary research (24 interviews, a survey of 60 users and 16 screen-share sessions) showed:
 - **21 of 26** participants opened multiple videos before finding an answer.
@@ -73,16 +82,19 @@ Every project here follows the same discipline: **start from a real user problem
 **Rollout:** internal dogfooding → limited beta → public launch, with Answer Mode staying opt-in.
 
 📂 [`YouTube Answer Mode Feature/`](YouTube%20Answer%20Mode%20Feature/)
-- 📘 [Product Requirements Document](YouTube%20Answer%20Mode%20Feature/Assignment_1_-_Product_Requirement_Document_-_YouTube_Answer_Mode_-_Saurav_Dasgupta_C52_final.pdf)
-- 🧭 [Case study (leadership review)](YouTube%20Answer%20Mode%20Feature/Answer_Mode_Case_Study.pdf)
-- 🔍 [Phase 2: research & learn](YouTube%20Answer%20Mode%20Feature/Assignment_1-_Phase_2_-_Saurav_Dasgupta_C52.pdf) · [Phase 3: problem framing & solution](YouTube%20Answer%20Mode%20Feature/Assignment_1_-_Phase_3_-_Saurav_Dasgupta_C52.pdf)
-- 📱 [Mobile prototype (HTML)](YouTube%20Answer%20Mode%20Feature/YouTube-Answer-Mode-Full-Prototype.html) · [interactive version](https://claude.ai/public/artifacts/72535428-7de1-4141-bb98-f633c92ec44d)
+- 📘 Product Requirements Document: [Read online](https://super-carnation-374.notion.site/YouTube-Answer-Mode-Product-Requirements-Document-3ccd6ff9cdd680c499bff0fe485de50f) · [PDF](YouTube%20Answer%20Mode%20Feature/YouTube_Answer_Mode-Product_Requirements_Document.pdf)
+- 🧭 [Case study (leadership review)](YouTube%20Answer%20Mode%20Feature/YouTube_Answer_Mode_Case_Study.pdf)
+- 🔍 The process:
+  1. Problem discovery: [Read online](https://super-carnation-374.notion.site/1-YouTube-Answer-Mode-Problem-Discovery-3b0d6ff9cdd6806f9fa1dfc0de553c4b) · [PDF](YouTube%20Answer%20Mode%20Feature/1_YouTube_Answer_Mode_-_Problem_Discovery.pdf)
+  2. User research: [Read online](https://super-carnation-374.notion.site/2-YouTube-Answer-Mode-User-Research-3b8d6ff9cdd68094b37fdae0d5bced33) · [PDF](YouTube%20Answer%20Mode%20Feature/2_YouTube_Answer_Mode_-_User_Research.pdf)
+  3. Problem framing & solution: [Read online](https://super-carnation-374.notion.site/3-YouTube-Answer-Mode-Problem-Framing-Solution-3ccd6ff9cdd6804297e8cb8b55deb9f4) · [PDF](YouTube%20Answer%20Mode%20Feature/3_YouTube_Answer_Mode_-_Problem_Framing_%26_Solution.pdf)
+- 📱 [Clickable mobile prototype](https://worldofnisho-471.github.io/Product-Portfolio/YouTube%20Answer%20Mode%20Feature/YouTube-Answer-Mode-Full-Prototype.html)
 
 ---
 
 ## Alcove — an emotionally intelligent AI companion
 
-*AI Product Management course (HelloPM) · Assignment 2*
+*AI Product Management course (HelloPM)*
 
 **Positioning:** *Someone who remembers you.*
 
@@ -104,14 +116,15 @@ Every project here follows the same discipline: **start from a real user problem
 - **Quality metrics:** memory accuracy, incorrect-memory reports, deletion success, and 7- and 30-day retention. The product doesn't optimise for session length alone.
 
 📂 [`Alcove AI Companion/`](Alcove%20AI%20Companion/)
-- 📘 [Product Requirements Document](Alcove%20AI%20Companion/Assignment_2_-_Product_Requirement_Document_-_Alcove_Companion_AI_-_Saurav_Dasgupta_C52.pdf)
-- 📱 [Full prototype (HTML)](Alcove%20AI%20Companion/Alcove-Companion_AI_Full_Prototype.html)
+- 📘 Product Requirements Document: [Read online](https://super-carnation-374.notion.site/Alcove-Companion-AI-Product-Requirements-Document-3dad6ff9cdd680abbc3bf07e7cd85f6e) · [PDF](Alcove%20AI%20Companion/Alcove_Companion_AI-Product_Requirement_Document.pdf)
+- 💼 [Investor deck](Alcove%20AI%20Companion/Alcove-Companion-AI-Investor-Deck_v2.pdf): the user problem, why now, the moat, MVP strategy, business model and long-term vision
+- 📱 [Clickable prototype](https://worldofnisho-471.github.io/Product-Portfolio/Alcove%20AI%20Companion/Alcove-Companion_AI_Full_Prototype.html)
 
 ---
 
 ## IITM Knowledge Assistant — citation-first RAG
 
-*AI Product Management course (HelloPM) · Assignment 3*
+*AI Product Management course (HelloPM)*
 
 **Problem.** IIT Madras students know what they need but not which page, circular or office owns the answer. One question can mean several searches, dense PDFs, and checking whether a newer circular overrides the rule.
 
@@ -132,7 +145,7 @@ Every project here follows the same discipline: **start from a real user problem
 - 100% pass on adversarial prompt-injection cases
 
 📂 [`IIT Madras RAG Knowledge Assistant/`](IIT%20Madras%20RAG%20Knowledge%20Assistant/)
-- 📘 [Product Requirements Document](IIT%20Madras%20RAG%20Knowledge%20Assistant/Assignment3_C52_Saurav_Dasgupta.pdf)
+- 📘 [Product Requirements Document](IIT%20Madras%20RAG%20Knowledge%20Assistant/IIT_Madras_Knowledge_Assistant_PRD.pdf)
 - 🚀 Live prototype: [rag-whisperer-36.lovable.app](https://rag-whisperer-36.lovable.app/) (built in Lovable on seven synthetic test documents)
 
 ---
@@ -155,7 +168,7 @@ Every project here follows the same discipline: **start from a real user problem
 - **Recommendation:** validate with customers before scaling.
 
 📂 [`LSEG Hackathon Idea/`](LSEG%20Hackathon%20Idea/)
-- 📊 [Leadership pitch deck](LSEG%20Hackathon%20Idea/FxAll_Execution_Policy_Intelligence.pptx)
+- 📊 [Leadership pitch deck](LSEG%20Hackathon%20Idea/FxAll_Execution_Policy_Intelligence_Leadership_Demo.pdf)
 
 > Scenario data in the deck is illustrative.
 
