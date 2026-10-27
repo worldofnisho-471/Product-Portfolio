@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alcove — Full Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+  :root{
+    --cream: #F7F2E9;
+    --paper: #FCFAF4;
+    --charcoal: #2B2822;
+    --charcoal-soft: #6B6459;
+    --charcoal-faint: #9A9184;
+    --lavender: #9C90B8;
+    --lavender-soft: #EAE6F1;
+    --teal: #6FA39A;
+    --teal-soft: #DEEBE8;
+    --coral: #DD8F76;
+    --coral-deep: #C4715A;
+    --coral-soft: #F3DDD2;
+    --line: rgba(43,40,34,0.09);
+    --shadow-warm: 0 30px 70px -30px rgba(196,113,90,0.30);
+    --shadow-soft: 0 12px 30px -14px rgba(43,40,34,0.16);
+    --radius-full: 999px;
+    --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; min-height:100vh; background:#EFE9DC;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Manrope', sans-serif; color: var(--charcoal); padding: 40px 16px;
+  }
+  .rig-label{ font-size:13px; color:#8A8272; margin-bottom:18px; font-weight:600; text-align:center; }
+  .phone{ position:relative; width:390px; height:844px; background: var(--cream); border-radius: 52px;
+    box-shadow: 0 60px 120px -40px rgba(43,40,34,0.35); overflow:hidden; border: 8px solid #1E1C18; }
+
+  .screen{ position:absolute; inset:0; opacity:0; pointer-events:none; transition: opacity .45s var(--ease-standard); display:flex; flex-direction:column; }
+  .screen.active{ opacity:1; pointer-events:auto; }
+
+  .page-head{ padding: 50px 26px 14px 26px; }
+  .page-title{ font-family:'Fraunces', serif; font-weight:500; font-size:30px; }
+  .page-sub{ font-size:14px; color:var(--charcoal-soft); margin-top:4px; max-width:32ch; }
+  .scroll{ flex:1; overflow-y:auto; padding: 6px 26px 14px 26px; }
+  .scroll::-webkit-scrollbar{ display:none; }
+
+  .tabbar{ display:flex; justify-content:space-around; margin: 0 20px 22px 20px; background: var(--paper);
+    border-radius: var(--radius-full); padding: 14px 10px; box-shadow: var(--shadow-soft); flex-shrink:0; }
+  .tab-dot{ display:flex; flex-direction:column; align-items:center; gap:6px; background:none; border:none; cursor:pointer; font-family:'Manrope'; }
+  .tab-dot .dot{ width:8px; height:8px; border-radius:50%; background: var(--charcoal-faint); }
+  .tab-dot.active .dot{ background: var(--coral); width:20px; border-radius: var(--radius-full); }
+  .tab-dot span{ font-size:11px; color: var(--charcoal-soft); }
+  .tab-dot.active span{ color: var(--charcoal); font-weight:700; }
+
+  .orb-mark{ border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; background: radial-gradient(circle at 32% 28%, #F6D9C9, var(--coral) 55%, var(--coral-deep) 100%); }
+
+  @keyframes breathe{ 0%,100%{transform:scale(1);} 50%{transform:scale(1.05);} }
+  @keyframes morph{
+    0%,100%{ border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; }
+    33%{ border-radius: 58% 42% 40% 60% / 55% 60% 40% 45%; }
+    66%{ border-radius: 48% 52% 55% 45% / 60% 40% 60% 40%; }
+  }
+  @keyframes pulse{ 0%{ transform:scale(0.92); opacity:.55; } 100%{ transform:scale(1.35); opacity:0; } }
+
+  /* ---------------- SPLASH ---------------- */
+  #screen-splash{ align-items:center; justify-content:center; gap:28px; }
+  .splash-mark{ width: 84px; height:84px; animation: breathe 4.5s var(--ease-standard) infinite, morph 8s var(--ease-standard) infinite; }
+  .splash-word{ font-family:'Fraunces', serif; font-size:30px; opacity:0; animation: fadeUp 1s var(--ease-standard) .6s forwards; }
+  .splash-tag{ font-size:14px; color:var(--charcoal-soft); opacity:0; animation: fadeUp 1s var(--ease-standard) 1.1s forwards; }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
+  .splash-begin{ margin-top:20px; opacity:0; animation: fadeUp 1s var(--ease-standard) 2s forwards;
+    background:none; border:none; font-family:'Manrope'; font-weight:700; font-size:15px; color: var(--coral-deep); cursor:pointer; padding: 10px 20px; }
+
+  /* ---------------- ONBOARDING ---------------- */
+
+  .ob-body{ flex:1; display:flex; flex-direction:column; justify-content:center; gap:26px; overflow-y:auto; }
+  .ob-step{ display:none; flex-direction:column; gap:22px; }
+  .ob-step.active{ display:flex; animation: fadeUp .5s var(--ease-standard); }
+  .ob-orb-small{ width:44px; height:44px; animation: breathe 4s var(--ease-standard) infinite; flex-shrink:0; }
+  .ob-msg{ font-family:'Fraunces', serif; font-size:24px; line-height:1.4; max-width: 30ch; }
+  .ob-sub{ font-size:14px; color:var(--charcoal-soft); margin-top:-10px; }
+  .ob-cta{ margin-top:8px; align-self:flex-start; font-family:'Manrope'; font-weight:700; font-size:16px;
+    padding: 15px 32px; border-radius: var(--radius-full); border:none;
+    background: linear-gradient(135deg, var(--coral), var(--coral-deep)); color: var(--paper); cursor:pointer;
+    box-shadow: var(--shadow-warm); transition: transform .15s var(--ease-standard); }
+  .ob-cta:active{ transform: scale(0.95); }
+
+  .field-input{ width:100%; border:none; border-bottom: 1.5px solid var(--charcoal-faint); background:transparent;
+    font-family:'Fraunces', serif; font-size:22px; padding: 10px 2px; color:var(--charcoal); outline:none; transition: border-color .3s var(--ease-standard); }
+  .field-input:focus{ border-color: var(--coral); }
+  .field-input::placeholder{ color: var(--charcoal-faint); }
+  .field-input-sm{ font-size:16.5px; }
+
+  .lite-phase-row{ display:flex; justify-content:center; gap:16px; margin-bottom:8px; }
+  .lite-phase-row span{ font-size:12px; font-weight:700; color:var(--charcoal-faint); transition: color .3s var(--ease-standard); }
+  .lite-phase-row span.active{ color: var(--coral-deep); }
+  .skip-link{ background:none; border:none; font-family:'Manrope'; font-size:13px; color:var(--charcoal-faint);
+    text-decoration:underline; cursor:pointer; align-self:flex-start; margin-top:-8px; padding:0; }
+
+  .chip-row{ display:flex; flex-wrap:wrap; gap:10px; }
+  .chip{ font-family:'Manrope'; font-size:14px; font-weight:600; padding: 11px 18px; border-radius: var(--radius-full);
+    border:1.5px solid var(--charcoal-faint); background: var(--paper); color:var(--charcoal-soft); cursor:pointer;
+    transition: transform .3s var(--ease-spring), background .2s, color .2s, border-color .2s; }
+  .chip.selected{ background: var(--charcoal); color: var(--paper); border-color: var(--charcoal); transform: scale(1.05); }
+
+  /* ---------------- HOME ---------------- */
+  #screen-home{ padding: 50px 28px 26px 28px; align-items:center; }
+  .home-top{ width:100%; text-align:center; margin-bottom:auto; }
+  .home-greeting{ font-size:14px; color:var(--charcoal-soft); }
+  .home-name{ font-family:'Fraunces', serif; font-size:26px; margin-top:2px; }
+  .home-orb-wrap{ display:flex; flex-direction:column; align-items:center; gap:22px; margin: auto 0; }
+  .home-orb{ width: 168px; height:168px; box-shadow: var(--shadow-warm);
+    animation: breathe 5.5s var(--ease-standard) infinite, morph 9s var(--ease-standard) infinite; cursor:pointer; }
+  .home-line{ font-family:'Fraunces', serif; font-size:19px; text-align:center; max-width:26ch; color:var(--charcoal); transition: opacity .35s var(--ease-standard); min-height:52px; }
+  .home-actions{ width:100%; display:flex; flex-direction:column; align-items:center; gap:14px; margin-bottom: 24px; }
+  .home-talk{ width:100%; font-family:'Manrope'; font-weight:700; font-size:17px; padding: 19px; border-radius: var(--radius-full); border:none;
+    background: linear-gradient(135deg, var(--coral), var(--coral-deep)); color: var(--paper); cursor:pointer; box-shadow: var(--shadow-warm);
+    transition: transform .15s var(--ease-standard); }
+  .home-talk:active{ transform: scale(0.97); }
+  .home-text-pill{
+    position:absolute; top: 54px; right: 22px;
+    display:flex; align-items:center; gap:6px;
+    background: rgba(43,40,34,0.05); border: 1px solid var(--line);
+    border-radius: var(--radius-full); padding: 7px 14px 7px 12px;
+    font-family:'Manrope'; font-size:12.5px; font-weight:600; color: var(--charcoal-soft);
+    cursor:pointer; transition: background .2s var(--ease-standard), color .2s var(--ease-standard);
+  }
+  .home-text-pill:hover{ background: rgba(43,40,34,0.09); color: var(--charcoal); }
+  .home-text-pill .kbd-icon{ font-size:13px; line-height:1; }
+
+  /* ---------------- VOICE ---------------- */
+  #screen-voice{ background: var(--charcoal); align-items:center; justify-content:space-between; padding: 28px 0 40px 0; }
+  .voice-banner{ background: rgba(252,250,244,0.1); color: var(--paper); font-size:13px; padding: 12px 20px; border-radius: var(--radius-full);
+    display:flex; align-items:center; gap:12px; margin: 0 24px; opacity:0; transform: translateY(-10px);
+    transition: all .5s var(--ease-standard); pointer-events:none; }
+  .voice-banner.show{ opacity:1; transform:none; pointer-events:auto; }
+  .voice-banner button{ background:none; border:none; color: var(--coral-soft); font-weight:700; font-size:13px; cursor:pointer; white-space:nowrap; }
+  .voice-center{ display:flex; flex-direction:column; align-items:center; gap:30px; flex:1; justify-content:center; }
+  .voice-orb-shell{ position:relative; width:260px; height:260px; display:flex; align-items:center; justify-content:center; }
+  .voice-orb{ width:200px; height:200px; box-shadow: 0 40px 90px -30px rgba(0,0,0,0.5);
+    animation: breathe 5.5s var(--ease-standard) infinite, morph 9s var(--ease-standard) infinite; transition: background .8s var(--ease-standard); }
+  .voice-ring{ position:absolute; inset:0; border-radius:50%; border:1px solid rgba(255,255,255,0.18); opacity:0; }
+  .voice-orb-shell[data-state="listening"] .voice-orb{ background: radial-gradient(circle at 32% 28%, #E4F0EC, var(--teal) 60%, #4E8880 100%);
+    animation: breathe 2.6s var(--ease-standard) infinite, morph 5s var(--ease-standard) infinite; }
+  .voice-orb-shell[data-state="listening"] .voice-ring{ opacity:1; animation: pulse 2.2s var(--ease-standard) infinite; }
+  .voice-orb-shell[data-state="speaking"] .voice-orb{ animation: breathe 1.1s var(--ease-standard) infinite, morph 3.2s var(--ease-standard) infinite; }
+  .voice-orb-shell[data-state="speaking"] .voice-ring{ opacity:1; animation: pulse 1.1s var(--ease-standard) infinite; border-color: rgba(221,143,118,0.5); }
+  .voice-orb-shell[data-state="thinking"] .voice-orb{ background: radial-gradient(circle at 32% 28%, #ECE7F3, var(--lavender) 60%, #776B95 100%);
+    animation: breathe 3.2s var(--ease-standard) infinite, morph 4.5s var(--ease-standard) infinite;
+    box-shadow: 0 40px 90px -30px rgba(0,0,0,0.5), 0 0 50px -10px rgba(156,144,184,0.5); }
+  .voice-orb-shell[data-state="thinking"] .voice-ring{ opacity:0.6; border-color: rgba(156,144,184,0.4); animation: pulse 3s var(--ease-standard) infinite; }
+  .voice-state-label{ color: rgba(252,250,244,0.6); font-size:14px; }
+  .voice-end{ width:60px; height:60px; border-radius:50%; border:none; background: var(--coral-deep); color:var(--paper); font-size:22px;
+    cursor:pointer; box-shadow: 0 12px 30px -10px rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; }
+  .voice-end-label{ color: rgba(252,250,244,0.5); font-size:12px; margin-top:10px; text-align:center; }
+
+  /* orb handoff clone */
+  .orb-clone{ position:absolute; border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
+    background: radial-gradient(circle at 32% 28%, #F6D9C9, var(--coral) 55%, var(--coral-deep) 100%);
+    box-shadow: var(--shadow-warm); z-index:50; transition: all .55s var(--ease-standard), opacity .3s var(--ease-standard) .35s; }
+
+  /* thinking overlay */
+  #screen-thinking{ background: var(--charcoal); align-items:center; justify-content:center; gap:22px; z-index:60; }
+  .thinking-orb{ width:120px; height:120px; border-radius: 48% 52% 55% 45% / 60% 40% 60% 40%; position:relative; overflow:hidden;
+    background: radial-gradient(circle at 32% 28%, #ECE7F3, var(--lavender) 60%, #776B95 100%);
+    animation: think-breathe 3.6s var(--ease-standard) infinite; }
+  @keyframes think-breathe{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.05);} }
+  .thinking-orb::after{ content:""; position:absolute; inset:0; background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%);
+    background-size: 250% 250%; animation: shimmer 2.6s linear infinite; }
+  @keyframes shimmer{ 0%{ background-position: -100% -100%; } 100%{ background-position: 100% 100%; } }
+  .thinking-caption{ color: rgba(252,250,244,0.7); font-size:14px; }
+
+  /* ---------------- OUR STORY ---------------- */
+  .relationship-stage{ font-family:'Fraunces', serif; font-size:14px; font-style:italic; color: var(--coral-deep); margin: 2px 0 18px 0; }
+  .story-empty{ font-family:'Fraunces', serif; font-size:16px; color: var(--charcoal-soft); line-height:1.5; padding: 10px 4px 20px 4px; max-width:26ch; }
+  .chapter-label{ font-size:13px; color:var(--charcoal-faint); font-weight:600; margin: 20px 0 10px 0; }
+  .chapter-label:first-child{ margin-top:4px; }
+  .story-card{ background: var(--paper); border-radius: 26px; padding: 20px 20px; box-shadow: var(--shadow-soft); margin-bottom: 14px;
+    cursor:pointer; display:flex; align-items:center; gap:16px;
+    opacity:0; transform: translateY(16px); transition: opacity .6s var(--ease-standard), transform .6s var(--ease-standard); }
+  .story-card.in{ opacity:1; transform:none; }
+  .story-card:active{ transform: scale(0.98); }
+  .story-dot{ width:44px; height:44px; flex-shrink:0; border-radius: 45% 55% 60% 40% / 45% 40% 60% 55%; }
+  .story-text h3{ font-family:'Fraunces', serif; font-weight:500; font-size:19px; margin:0 0 4px 0; }
+  .story-text p{ font-size:13.5px; color:var(--charcoal-soft); margin:0; line-height:1.4; }
+
+  .detail{ position:absolute; inset:0; background: var(--paper); transform: translateX(100%); transition: transform .45s var(--ease-standard);
+    display:flex; flex-direction:column; z-index:5; }
+  .detail.open{ transform:none; }
+  .detail-head{ padding: 50px 26px 4px 26px; display:flex; align-items:center; gap:14px; }
+  .detail-back{ background:none; border:none; font-size:20px; color:var(--charcoal-soft); cursor:pointer; padding:4px; }
+  .detail-title{ font-family:'Fraunces', serif; font-weight:500; font-size:24px; }
+  .detail-body{ flex:1; overflow-y:auto; padding: 10px 26px 40px 26px; }
+  .detail-body::-webkit-scrollbar{ display:none; }
+  .detail-period{ font-size:13px; color: var(--coral-deep); font-weight:700; }
+  .detail-bigtitle{ font-family:'Fraunces', serif; font-weight:500; font-size:28px; margin: 6px 0 18px 0; line-height:1.2; }
+  .detail-body p.journal{ font-family:'Fraunces', serif; font-size:19px; line-height:1.7; color: var(--charcoal); font-weight:400; margin-bottom:18px; }
+
+  .noticed-block{ background: var(--teal-soft); border-radius:18px; padding:16px 18px; margin-bottom:24px; }
+  .noticed-label{ font-size:12px; font-weight:700; color:#3E5C57; text-transform:none; margin-bottom:6px; }
+  .noticed-block p{ font-family:'Fraunces', serif; font-size:15.5px; line-height:1.55; color:#2F4642; margin:0; }
+
+  .remember-toggle{ background:none; border:none; padding:0; margin: 4px 0 6px 0; cursor:pointer;
+    font-family:'Fraunces', serif; font-style:italic; font-size:15px; color: var(--coral-deep); }
+  .remember-reveal{ max-height:0; overflow:hidden; opacity:0; transform: translateY(-6px);
+    transition: max-height .5s var(--ease-standard), opacity .4s var(--ease-standard), transform .4s var(--ease-standard); }
+  .remember-reveal.open{ max-height:260px; opacity:1; transform:none; }
+  .remember-reveal p.journal{ margin-top:6px; }
+
+  /* ---------------- GROWTH ---------------- */
+  .section-label{ font-family:'Fraunces', serif; font-size:20px; margin: 22px 0 12px 0; }
+  .section-label:first-of-type{ margin-top:2px; }
+
+  .observation-card{ background: var(--lavender-soft); border-radius:22px; padding:20px 22px; margin-bottom: 6px; }
+  .observation-card h4{ font-family:'Fraunces', serif; font-weight:500; font-size:18px; margin:0 0 8px 0; color:#3A3350; }
+  .observation-card p{ font-size:14px; line-height:1.55; color:#514A63; margin:0; }
+
+  .then-now-card{ background: var(--paper); border-radius:22px; padding:22px; box-shadow: var(--shadow-soft); margin-bottom: 6px; }
+  .tn-label{ font-size:11.5px; font-weight:700; letter-spacing:0.03em; color: var(--charcoal-faint); }
+  .tn-quote{ font-family:'Fraunces', serif; font-size:17px; margin: 4px 0 0 0; line-height:1.4; }
+  .tn-quote.then{ color: var(--charcoal-faint); }
+  .tn-quote.now{ color: var(--charcoal); }
+  .tn-arrow{ text-align:center; color: var(--charcoal-faint); font-size:14px; margin: 10px 0; }
+  .tn-caption{ margin-top:14px; font-size:13px; font-weight:700; color: var(--coral-deep); text-align:center; }
+  .goal-card{ background: var(--paper); border-radius:22px; padding:18px 20px; box-shadow: var(--shadow-soft); margin-bottom:12px; display:flex; align-items:center; gap:16px; }
+  .goal-bloom{ width:40px; height:40px; border-radius:50%; position:relative; flex-shrink:0;
+    background: conic-gradient(var(--goal-color, var(--coral)) var(--fill, 60%), var(--line) 0); display:flex; align-items:center; justify-content:center; }
+  .goal-bloom::after{ content:""; width:28px; height:28px; border-radius:50%; background: var(--paper); }
+  .goal-info h4{ margin:0 0 3px 0; font-size:15.5px; font-weight:700; }
+  .goal-info p{ margin:0; font-size:13px; color:var(--charcoal-soft); }
+  .badge-row{ display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; }
+  .badge{ flex-shrink:0; background: var(--lavender-soft); border-radius:18px; padding: 14px 16px; width: 150px; font-size:13px; color: #514A63; line-height:1.4; }
+  .badge b{ display:block; font-family:'Fraunces', serif; font-size:15px; font-weight:500; color:var(--charcoal); margin-bottom:4px; }
+  .trend-card{ background: var(--teal-soft); border-radius:24px; padding:20px; margin-top:4px; }
+  .trend-card p{ margin: 10px 0 0 0; font-size:14px; color:#3E5C57; line-height:1.5; }
+  .letter-cta{ margin-top:22px; width:100%; background: var(--charcoal); color: var(--paper); border:none; border-radius: 20px;
+    padding: 18px 20px; text-align:left; display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-family:'Manrope'; }
+  .letter-cta .l1{ font-size:12px; color: rgba(252,250,244,0.6); }
+  .letter-cta .l2{ font-family:'Fraunces', serif; font-size:18px; margin-top:2px; }
+  .letter-cta .arrow{ font-size:20px; }
+
+  /* ---------------- WEEKLY REFLECTION (elastic sheet) ---------------- */
+  .reflection{ position:absolute; inset:0; background: var(--cream); transform: translateY(100%); display:flex; flex-direction:column; z-index:10;
+    touch-action:none; }
+  .reflection.settled{ transition: transform .5s var(--ease-spring); }
+  .reflection-handle{ width:36px; height:4px; border-radius:999px; background: var(--charcoal-faint); margin: 14px auto 0 auto; flex-shrink:0; }
+  .reflection-head{ padding: 14px 26px 0 26px; display:flex; justify-content:space-between; align-items:flex-start; flex-shrink:0; }
+  .reflection-close{ background:none; border:none; font-size:20px; color:var(--charcoal-soft); cursor:pointer; }
+  .reflection-dates{ font-size:13px; color:var(--coral-deep); font-weight:700; }
+  .reflection-title{ font-family:'Fraunces', serif; font-size:32px; margin: 6px 0 0 0; }
+  .reflection-body{ flex:1; overflow-y:auto; padding: 20px 26px 50px 26px; }
+  .reflection-body p{ font-family:'Fraunces', serif; font-size:18px; line-height:1.75; margin-bottom:18px; }
+  .reflection-sign{ font-size:14px; color: var(--charcoal-soft); margin-top: 10px; }
+
+  /* ---------------- YOU ---------------- */
+  .you-orb{ width:56px; height:56px; margin-bottom: 6px; }
+  .you-since{ font-size:13px; color:var(--charcoal-soft); }
+  .trust-note{ background: var(--teal-soft); border-radius:18px; padding:16px 18px; margin: 8px 0 22px 0; }
+  .trust-note h4{ margin:0 0 5px 0; font-family:'Fraunces', serif; font-weight:500; font-size:15px; color:#2F4642; }
+  .trust-note p{ margin:0; font-size:13px; line-height:1.5; color:#3E5C57; }
+  .memory-toggle{ background:none; border:none; padding:0; margin-top:6px; font-family:'Manrope'; font-size:11.5px;
+    font-weight:700; color: var(--coral-deep); cursor:pointer; }
+  .memory-toggle.off{ color: var(--charcoal-faint); }
+  .memory-item-body{ flex:1; display:flex; flex-direction:column; }
+  .setting-row{ background: var(--paper); border-radius:22px; padding:18px 20px; box-shadow: var(--shadow-soft);
+    margin-top:14px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; }
+  .setting-row:first-of-type{ margin-top:28px; }
+  .setting-text h4{ margin:0 0 3px 0; font-family:'Fraunces', serif; font-weight:500; font-size:18px; }
+  .setting-text p{ margin:0; font-size:13px; color:var(--charcoal-soft); max-width:26ch; }
+  .setting-arrow{ font-size:18px; color: var(--charcoal-faint); }
+
+  .field-label{ font-size:13px; color:var(--charcoal-soft); margin: 24px 0 10px 0; font-weight:600; }
+  .field-label:first-of-type{ margin-top:6px; }
+  .field-note{ font-size:13px; color:var(--charcoal-faint); margin-top:-4px; margin-bottom:12px; line-height:1.4; }
+  .segmented{ display:flex; background: var(--cream); border-radius: var(--radius-full); padding:4px; gap:2px; }
+  .segmented button{ flex:1; border:none; background:none; padding:9px 4px; border-radius: var(--radius-full); font-family:'Manrope';
+    font-size:12.5px; font-weight:600; color:var(--charcoal-soft); cursor:pointer; transition: all .25s var(--ease-standard); }
+  .segmented button.active{ background: var(--paper); color:var(--charcoal); box-shadow: var(--shadow-soft); }
+  .divider{ height:1px; background:var(--line); margin: 26px 0; }
+
+  .switch-row{ display:flex; align-items:center; justify-content:space-between; padding: 14px 0; }
+  .switch-row + .switch-row{ border-top:1px solid var(--line); }
+  .switch-text h4{ margin:0 0 2px 0; font-size:15px; font-weight:700; }
+  .switch-text p{ margin:0; font-size:12.5px; color:var(--charcoal-soft); max-width:24ch; }
+  .switch{ width:44px; height:26px; border-radius:999px; background: var(--charcoal-faint); position:relative; cursor:pointer; flex-shrink:0; }
+  .switch.on{ background: var(--teal); }
+  .switch .knob{ width:20px; height:20px; border-radius:50%; background: var(--paper); position:absolute; top:3px; left:3px;
+    transition: transform .45s var(--ease-spring); box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+  .switch.on .knob{ transform: translateX(18px); }
+  .disabled-group{ opacity:0.4; pointer-events:none; transition: opacity .3s var(--ease-standard); }
+
+  .memory-item{ background: var(--cream); border-radius:18px; padding:14px 16px; display:flex; align-items:flex-start; gap:10px; margin-bottom:10px;
+    transition: opacity .3s var(--ease-standard), transform .3s var(--ease-standard); opacity:0; }
+  .memory-item.in{ opacity:1; }
+  .memory-item.removing{ opacity:0; transform: translateX(30px); }
+  .memory-text{ flex:1; font-size:14.5px; line-height:1.4; outline:none; }
+  .memory-text[contenteditable="true"]{ border-bottom: 1.5px dashed var(--coral); }
+  .icon-btn{ background:none; border:none; color: var(--charcoal-faint); cursor:pointer; font-size:15px; padding:2px 4px; }
+  .icon-btn:hover{ color: var(--charcoal); }
+  .text-btn{ width:100%; text-align:left; background: var(--cream); border:1px solid var(--line); border-radius:16px; padding:14px 16px;
+    font-family:'Manrope'; font-size:14.5px; font-weight:600; color:var(--charcoal); cursor:pointer; margin-bottom:10px; transition: all .2s var(--ease-standard); }
+  .text-btn.danger{ color: var(--coral-deep); }
+  .text-btn.confirming{ background: var(--coral-soft); }
+  .time-row{ display:flex; align-items:center; gap:10px; margin-top:8px; }
+  .time-row input[type="time"]{ font-family:'Manrope'; font-size:14px; border:1px solid var(--charcoal-faint); border-radius:10px;
+    padding:8px 10px; background: var(--cream); color:var(--charcoal); }
+
+  .toast{ position:absolute; bottom: 100px; left:50%; transform: translateX(-50%) translateY(10px); background: var(--charcoal); color:var(--paper);
+    font-size:13px; font-weight:600; padding: 12px 22px; border-radius: var(--radius-full); box-shadow: var(--shadow-soft); opacity:0;
+    transition: all .4s var(--ease-standard); pointer-events:none; white-space:nowrap; z-index:70; }
+  .toast.show{ opacity:1; transform: translateX(-50%) translateY(0); }
+
+  /* ---------------- TEXT MODE (lightweight) ---------------- */
+  #screen-text{ background: var(--cream); }
+  .text-head{ padding: 50px 24px 16px 24px; display:flex; align-items:center; gap:14px; flex-shrink:0; border-bottom: 1px solid var(--line); }
+  .text-back{ background:none; border:none; font-size:20px; color:var(--charcoal-soft); cursor:pointer; padding:4px; }
+  .text-head-orb{ width:34px; height:34px; flex-shrink:0; }
+  .text-head-name{ font-family:'Fraunces', serif; font-size:17px; }
+  .text-head-sub{ font-size:12px; color:var(--charcoal-faint); margin-top:1px; }
+
+  .text-log{ flex:1; overflow-y:auto; padding: 24px 24px 10px 24px; display:flex; flex-direction:column; gap:22px; }
+  .text-log::-webkit-scrollbar{ display:none; }
+
+  .msg{ max-width: 82%; opacity:0; transform: translateY(8px); animation: fadeUp .4s var(--ease-standard) forwards; }
+  .msg.from-companion{ align-self:flex-start; display:flex; gap:10px; }
+  .msg.from-user{ align-self:flex-end; text-align:right; }
+  .msg-orb{ width:22px; height:22px; flex-shrink:0; margin-top:4px; }
+  .msg-text-companion{ font-family:'Fraunces', serif; font-size:17px; line-height:1.55; color: var(--charcoal); }
+  .msg-text-user{ font-family:'Manrope', sans-serif; font-size:15px; line-height:1.5; color: var(--charcoal-soft); font-weight:500; }
+
+  .typing-indicator{ align-self:flex-start; display:flex; gap:6px; align-items:center; padding-left: 32px; opacity:0; transition: opacity .3s var(--ease-standard); }
+  .typing-indicator.show{ opacity:1; }
+  .typing-dot{ width:6px; height:6px; border-radius:50%; background: var(--charcoal-faint); animation: dot-bounce 1.2s ease-in-out infinite; }
+  .typing-dot:nth-child(2){ animation-delay: .15s; }
+  .typing-dot:nth-child(3){ animation-delay: .3s; }
+  @keyframes dot-bounce{ 0%,60%,100%{ transform: translateY(0); opacity:.5; } 30%{ transform: translateY(-4px); opacity:1; } }
+
+  .text-composer{ flex-shrink:0; padding: 14px 20px 26px 20px; }
+  .composer-pill{ display:flex; align-items:center; gap:10px; background: var(--paper); border-radius: var(--radius-full);
+    padding: 8px 8px 8px 20px; box-shadow: var(--shadow-soft); }
+  .composer-input{ flex:1; border:none; background:none; outline:none; font-family:'Manrope'; font-size:15px; color:var(--charcoal); padding: 8px 0; }
+  .composer-input::placeholder{ color: var(--charcoal-faint); }
+  .composer-send{ width:38px; height:38px; border-radius:50%; border:none; flex-shrink:0; cursor:pointer;
+    background: linear-gradient(135deg, var(--coral), var(--coral-deep)); color: var(--paper); font-size:16px;
+    display:flex; align-items:center; justify-content:center; transition: transform .15s var(--ease-standard); }
+  .composer-send:active{ transform: scale(0.9); }
+
+  *:focus-visible{ outline: 2px solid var(--coral-deep); outline-offset: 3px; }
+
+  /* ---------------- DEMO-ONLY: relationship stage stepper ---------------- */
+  /* Lives outside the phone frame on purpose — a walkthrough aid for this */
+  /* prototype, not a feature of the product. Styled plainly on purpose so it */
+  /* never reads as an in-app control. */
+  .stage-control{ margin-top: 22px; display:flex; flex-direction:column; align-items:center; gap:10px; max-width:390px; }
+  .stage-control-label{ font-size:11.5px; color:#9C947F; text-align:center; line-height:1.4; max-width:280px; }
+  .stage-buttons{ display:flex; gap:8px; background:#E4DDCC; border-radius:999px; padding:4px; }
+  .stage-btn{ font-family:'Manrope'; font-size:12.5px; font-weight:700; border:none; background:none;
+    padding:8px 18px; border-radius:999px; color:#8A8272; cursor:pointer; transition: all .2s ease; }
+  .stage-btn.active{ background:#2B2822; color:#FCFAF4; }
+
+  /* stage-dependent visibility helper */
+  [data-min-stage]{ display:none; }
+
+  @media (prefers-reduced-motion: reduce){
+    .screen, .detail, .reflection, .story-card, .orb-clone, .thinking-orb, .thinking-orb::after, .switch .knob{ transition:none !important; animation:none !important; }
+  }
+  @media (max-width: 430px){
+    body{ padding:0; align-items:stretch; } .rig-label{ display:none; }
+    .phone{ width:100vw; height:100vh; border-radius:0; border:none; }
+  }
+</style>
+</head>
+<body>
+
+<div style="width:100%;">
+<div class="rig-label">Alcove — full prototype: Splash → Onboarding → Home → Talk → Our Story → Growth → You</div>
+<div style="display:flex; justify-content:center;">
+<div class="phone" id="phone">
+
+  <!-- SPLASH -->
+  <div class="screen active" id="screen-splash">
+    <div class="splash-mark orb-mark"></div>
+    <div class="splash-word">Alcove</div>
+    <div class="splash-tag">Someone who remembers you.</div>
+    <button class="splash-begin" onclick="enterOnboardingLite()">Begin</button>
+  </div>
+
+  <!-- ONBOARDING — Meet -> real Talk (the actual Voice screen) -> Learn -> Personalize, with Personalize entirely skippable. -->
+  <div class="screen" id="screen-onboarding-lite">
+    <div style="padding:56px 26px 0 26px;">
+      <div class="lite-phase-row" id="litePhaseRow">
+        <span data-phase="meet">Meet</span><span data-phase="talk">Talk</span><span data-phase="learn">Learn</span><span data-phase="personalize">Personalize</span>
+      </div>
+    </div>
+    <div class="ob-body" style="padding:0 26px 30px 26px;">
+      <div class="ob-step active" data-lite-step="meet">
+        <div class="ob-orb-small orb-mark"></div>
+        <div class="ob-msg">Hi. I'm glad you're here.</div>
+        <div class="ob-sub">What should I call you?</div>
+        <input class="field-input" id="liteName" placeholder="Your name">
+        <button class="ob-cta" onclick="liteStartTalk()">Start talking</button>
+      </div>
+      <div class="ob-step" data-lite-step="learn">
+        <button class="detail-back" onclick="showLiteStep('meet')" style="align-self:flex-start; margin:-6px 0 -8px -6px;">←</button>
+        <div class="ob-orb-small orb-mark"></div>
+        <div class="ob-msg">Since we talked, there's one thing I'd love to know.</div>
+        <input class="field-input field-input-sm" id="liteContext" placeholder="What's on your mind these days?">
+        <button class="ob-cta" onclick="liteGoPersonalize()">Continue</button>
+        <button class="skip-link" onclick="liteGoPersonalize()">Skip for now</button>
+      </div>
+      <div class="ob-step" data-lite-step="personalize">
+        <button class="detail-back" onclick="showLiteStep('learn')" style="align-self:flex-start; margin:-6px 0 -8px -6px;">←</button>
+        <div class="ob-msg">Want this to feel more like yours?</div>
+        <div class="ob-sub" style="margin-top:-8px;">Name me, or pick how I sound. Entirely optional — you can always change this later.</div>
+        <input class="field-input" id="liteCompanionName" placeholder="Give me a name (optional)">
+        <div class="chip-row"><div class="chip">Warm &amp; low</div><div class="chip">Calm &amp; clear</div><div class="chip">Bright &amp; energetic</div></div>
+        <button class="ob-cta" onclick="liteFinish()">Continue</button>
+        <button class="skip-link" onclick="liteFinish()">Skip, I'll do this later</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="screen" id="screen-home">
+    <button class="home-text-pill" onclick="goTo('text')"><span class="kbd-icon">⌨</span><span>Text</span></button>
+    <div class="home-top"><div class="home-greeting">Good evening,</div><div class="home-name" id="homeName">there</div></div>
+    <div class="home-orb-wrap">
+      <div class="home-orb orb-mark" id="homeOrb" onclick="talkTransition()"></div>
+      <div class="home-line" id="homeLine">I've been thinking about what you said last time.</div>
+    </div>
+    <div class="home-actions">
+      <button class="home-talk" onclick="talkTransition()">Talk</button>
+    </div>
+    <div class="tabbar">
+      <button class="tab-dot active" onclick="goTo('home')"><div class="dot"></div><span>Home</span></button>
+      <button class="tab-dot" onclick="enterStory()"><div class="dot"></div><span>Our Story</span></button>
+      <button class="tab-dot" onclick="goTo('growth')"><div class="dot"></div><span>Growth</span></button>
+      <button class="tab-dot" onclick="goTo('you')"><div class="dot"></div><span>You</span></button>
+    </div>
+  </div>
+
+  <!-- VOICE -->
+  <div class="screen" id="screen-voice">
+    <div class="voice-banner" id="earBanner"><span>For a more private conversation, try earphones.</span><button onclick="dismissBanner()">Continue</button></div>
+    <div class="voice-center">
+      <div class="voice-orb-shell" id="voiceOrb" data-state="idle"><div class="voice-ring"></div><div class="voice-orb orb-mark"></div></div>
+      <div class="voice-state-label" id="voiceStateLabel">Listening</div>
+    </div>
+    <div style="text-align:center;"><button class="voice-end" onclick="endCall()">✕</button><div class="voice-end-label">End</div></div>
+  </div>
+
+  <!-- TEXT MODE (lightweight) -->
+  <div class="screen" id="screen-text">
+    <div class="text-head">
+      <button class="text-back" onclick="goTo('home')">←</button>
+      <div class="text-head-orb orb-mark"></div>
+      <div><div class="text-head-name" id="textHeadName">Wren</div><div class="text-head-sub">Text mode — quieter, same companion</div></div>
+    </div>
+    <div class="text-log" id="textLog">
+      <div class="msg from-companion"><div class="msg-orb orb-mark"></div><div class="msg-text-companion">Hey — texting instead of talking tonight?</div></div>
+      <div class="msg from-user"><div class="msg-text-user">Yeah, just a quiet one</div></div>
+      <div class="msg from-companion"><div class="msg-orb orb-mark"></div><div class="msg-text-companion">That's fine. I'm here either way — what's on your mind?</div></div>
+    </div>
+    <div class="typing-indicator" id="typingIndicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+    <div class="text-composer">
+      <div class="composer-pill">
+        <input class="composer-input" id="composerInput" placeholder="Type something…" onkeydown="if(event.key==='Enter'){sendText();}">
+        <button class="composer-send" onclick="sendText()">↑</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- THINKING (transient) -->
+  <div class="screen" id="screen-thinking">
+    <div class="thinking-orb"></div>
+    <div class="thinking-caption">Writing tonight's story…</div>
+  </div>
+
+  <!-- OUR STORY -->
+  <div class="screen" id="screen-story">
+    <div class="page-head"><div class="page-title">Our Story</div><div class="page-sub">Not conversations — the moments that mattered.</div></div>
+    <div class="scroll">
+      <div class="relationship-stage" id="relationshipStage">What I've come to understand</div>
+      <div class="story-empty" id="storyEmpty" style="display:none;">Nothing here yet — talk with Wren a little more and this page will start to fill in.</div>
+      <div class="chapter-label" data-min-stage="day30">This month</div>
+      <div class="story-card" data-id="courage" data-min-stage="day30" data-display="flex" onclick="openStory('courage')"><div class="story-dot" style="background: radial-gradient(circle at 30% 25%, #F6D9C9, var(--coral) 60%, var(--coral-deep) 100%);"></div><div class="story-text"><h3>The Day You Chose Courage</h3><p>You almost didn't send the email. Then you did.</p></div></div>
+      <div class="story-card" data-id="balance" data-min-stage="day30" data-display="flex" onclick="openStory('balance')"><div class="story-dot" style="background: radial-gradient(circle at 30% 25%, #E4F0EC, var(--teal) 60%, #4E8880 100%);"></div><div class="story-text"><h3>Finding Balance</h3><p>A quieter talk, about slowing down without falling behind.</p></div></div>
+      <div class="chapter-label" data-min-stage="day7">Earlier this year</div>
+      <div class="story-card" data-id="confidence" data-min-stage="day7" data-display="flex" onclick="openStory('confidence')"><div class="story-dot" style="background: radial-gradient(circle at 30% 25%, #ECE7F3, var(--lavender) 60%, #776B95 100%);"></div><div class="story-text"><h3>Learning Confidence</h3><p>The first time you named what you actually wanted.</p></div></div>
+      <div class="story-card" data-id="promotion" data-min-stage="day30" data-display="flex" onclick="openStory('promotion')"><div class="story-dot" style="background: radial-gradient(circle at 30% 25%, #F6D9C9, var(--coral) 60%, var(--coral-deep) 100%);"></div><div class="story-text"><h3>First Promotion</h3><p>You called it luck. It wasn't.</p></div></div>
+      <div class="story-card" data-id="firstjob" data-min-stage="day7" data-display="flex" onclick="openStory('firstjob')"><div class="story-dot" style="background: radial-gradient(circle at 30% 25%, #E4F0EC, var(--teal) 60%, #4E8880 100%);"></div><div class="story-text"><h3>First Job</h3><p>Where this all started — nervous, and ready anyway.</p></div></div>
+    </div>
+    <div class="tabbar">
+      <button class="tab-dot" onclick="goTo('home')"><div class="dot"></div><span>Home</span></button>
+      <button class="tab-dot active" onclick="enterStory()"><div class="dot"></div><span>Our Story</span></button>
+      <button class="tab-dot" onclick="goTo('growth')"><div class="dot"></div><span>Growth</span></button>
+      <button class="tab-dot" onclick="goTo('you')"><div class="dot"></div><span>You</span></button>
+    </div>
+  </div>
+
+  <!-- GROWTH -->
+  <div class="screen" id="screen-growth">
+    <div class="page-head"><div class="page-title">Growth</div><div class="page-sub">A record of what you're moving toward — never a scoreboard.</div></div>
+    <div class="scroll">
+      <div class="section-label" id="observationSectionLabel">Something I've noticed</div>
+      <div class="observation-card" data-min-stage="day7">
+        <h4 id="observationTitle">You seem more decisive lately.</h4>
+        <p id="observationText">Earlier, you spent a lot of time weighing every possibility. Recently, you've been choosing a direction and figuring things out along the way.</p>
+      </div>
+      <div class="story-empty" id="growthEmpty" style="display:none;">I haven't noticed enough yet — keep talking, and patterns will start to show up here.</div>
+
+      <div class="section-label">Goals</div>
+      <div class="goal-card"><div class="goal-bloom" id="bloomCareer" style="--goal-color:var(--coral); --fill:70%;"></div><div class="goal-info"><h4>Career</h4><p id="descCareer">Steady progress — three conversations this month.</p></div></div>
+      <div class="goal-card"><div class="goal-bloom" id="bloomBalance" style="--goal-color:var(--teal); --fill:45%;"></div><div class="goal-info"><h4>Balance</h4><p id="descBalance">Early days, but you're noticing more.</p></div></div>
+      <div class="goal-card"><div class="goal-bloom" id="bloomConfidence" style="--goal-color:var(--lavender); --fill:85%;"></div><div class="goal-info"><h4>Confidence</h4><p id="descConfidence">This one's been growing quietly for months.</p></div></div>
+
+      <div class="section-label" data-min-stage="day30">A change worth noticing</div>
+      <div class="then-now-card" data-min-stage="day30">
+        <div class="tn-label">Then</div>
+        <div class="tn-quote then">"I don't know if I'm ready."</div>
+        <div class="tn-arrow">↓</div>
+        <div class="tn-label">Now</div>
+        <div class="tn-quote now">"I'm going to give it a shot."</div>
+        <div class="tn-caption">That's a change worth noticing.</div>
+      </div>
+
+      <div class="section-label" data-min-stage="day30">Moments worth keeping</div>
+      <div class="badge-row" data-min-stage="day30" data-display="flex">
+        <div class="badge"><b>Spoke up</b>Asked for the raise you'd rehearsed for weeks.</div>
+        <div class="badge"><b>30 days</b>Of morning check-ins, without missing one.</div>
+        <div class="badge"><b>Let it go</b>Skipped a plan that was draining you.</div>
+      </div>
+      <div class="section-label" data-min-stage="day30">How this month has felt</div>
+      <div class="trend-card" data-min-stage="day30">
+        <svg viewBox="0 0 300 70" width="100%" height="70" preserveAspectRatio="none"><path d="M0,45 C 40,15 70,55 110,35 S 180,10 220,30 S 270,50 300,20" fill="none" stroke="#4E8880" stroke-width="3" stroke-linecap="round"/></svg>
+        <p>Mostly steady, with a real lift after the conversation about the promotion. Thursdays have been a little heavier lately.</p>
+      </div>
+      <button class="letter-cta" onclick="handleLetterCta()"><span><span class="l1">Sunday</span><br><span class="l2" id="letterCtaText">Read this week's letter</span></span><span class="arrow">›</span></button>
+    </div>
+    <div class="tabbar">
+      <button class="tab-dot" onclick="goTo('home')"><div class="dot"></div><span>Home</span></button>
+      <button class="tab-dot" onclick="enterStory()"><div class="dot"></div><span>Our Story</span></button>
+      <button class="tab-dot active" onclick="goTo('growth')"><div class="dot"></div><span>Growth</span></button>
+      <button class="tab-dot" onclick="goTo('you')"><div class="dot"></div><span>You</span></button>
+    </div>
+  </div>
+
+  <!-- YOU -->
+  <div class="screen" id="screen-you">
+    <div class="page-head">
+      <div class="you-orb orb-mark"></div>
+      <div class="page-title">You</div>
+      <div class="you-since">Talking with <span id="youCompanionName">Wren</span> since March</div>
+    </div>
+    <div class="scroll">
+      <div class="setting-row" onclick="openDetail('companion')"><div class="setting-text"><h4>Companion</h4><p>Name, voice, and how they talk with you</p></div><div class="setting-arrow">›</div></div>
+      <div class="setting-row" onclick="openDetail('memory')"><div class="setting-text"><h4>Memory &amp; privacy</h4><p>What's remembered, and what isn't</p></div><div class="setting-arrow">›</div></div>
+      <div class="setting-row" onclick="openDetail('notifications')"><div class="setting-text"><h4>Notifications</h4><p>When they reach out first</p></div><div class="setting-arrow">›</div></div>
+    </div>
+    <div class="tabbar">
+      <button class="tab-dot" onclick="goTo('home')"><div class="dot"></div><span>Home</span></button>
+      <button class="tab-dot" onclick="enterStory()"><div class="dot"></div><span>Our Story</span></button>
+      <button class="tab-dot" onclick="goTo('growth')"><div class="dot"></div><span>Growth</span></button>
+      <button class="tab-dot active" onclick="goTo('you')"><div class="dot"></div><span>You</span></button>
+    </div>
+  </div>
+
+  <!-- STORY DETAIL -->
+  <div class="detail" id="storyDetail">
+    <div class="detail-head"><button class="detail-back" onclick="closeStory()">←</button></div>
+    <div class="detail-body">
+      <div class="detail-period" id="detailPeriod">This month</div>
+      <div class="detail-bigtitle" id="detailTitle">Title</div>
+      <div class="noticed-block"><div class="noticed-label">What I noticed</div><p id="detailNoticed"></p></div>
+      <div id="detailText"></div>
+      <button class="remember-toggle" id="rememberToggle" onclick="toggleRemember_story()">I remember...</button>
+      <div class="remember-reveal" id="rememberReveal"></div>
+    </div>
+  </div>
+
+  <!-- WEEKLY REFLECTION (elastic sheet) -->
+  <div class="reflection settled" id="reflection">
+    <div class="reflection-handle" id="reflectionHandle"></div>
+    <div class="reflection-head">
+      <div><div class="reflection-dates" id="reflectionDates">Sep 1 – Sep 7</div><div class="reflection-title">Your week</div></div>
+      <button class="reflection-close" onclick="closeReflection()">✕</button>
+    </div>
+    <div class="reflection-body">
+      <div id="reflectionContent"></div>
+      <div class="reflection-sign" id="reflectionSign">— Wren</div>
+    </div>
+  </div>
+
+  <!-- COMPANION DETAIL -->
+  <div class="detail" id="detail-companion">
+    <div class="detail-head"><button class="detail-back" onclick="closeDetail('companion')">←</button><div class="detail-title">Companion</div></div>
+    <div class="detail-body">
+      <div class="field-label">Name</div>
+      <input class="field-input" id="companionNameInput" value="Wren" oninput="syncCompanionName()">
+      <div class="field-label">Voice</div>
+      <div class="chip-row"><div class="chip selected">Warm &amp; low</div><div class="chip">Calm &amp; clear</div><div class="chip">Bright &amp; energetic</div></div>
+      <div class="field-label">Conversation style</div>
+      <div class="chip-row"><div class="chip">Thoughtful &amp; calm</div><div class="chip selected">Direct &amp; honest</div><div class="chip">Playful &amp; warm</div><div class="chip">Encouraging</div></div>
+      <div class="field-label">Relationship style</div>
+      <div class="chip-row"><div class="chip selected">Like a close friend</div><div class="chip">Like a steady mentor</div><div class="chip">Like a quiet companion</div></div>
+      <div class="field-label">Humor</div>
+      <div class="segmented"><button>Rarely</button><button class="active">Sometimes</button><button>Often</button></div>
+      <div class="field-label">Energy level</div>
+      <div class="segmented"><button>Calm</button><button class="active">Balanced</button><button>Energetic</button></div>
+      <div class="field-label">Speaking speed</div>
+      <div class="segmented"><button>Slower</button><button class="active">Natural</button><button>Faster</button></div>
+      <div class="field-note" style="margin-top:26px;">Changes apply right away — there's nothing to save.</div>
+    </div>
+  </div>
+
+  <!-- MEMORY DETAIL -->
+  <div class="detail" id="detail-memory">
+    <div class="detail-head"><button class="detail-back" onclick="closeDetail('memory')">←</button><div class="detail-title">Memory &amp; privacy</div></div>
+    <div class="detail-body">
+      <div class="field-label">What's remembered</div>
+      <div class="trust-note"><h4>Your story belongs to you.</h4><p>You decide what Alcove remembers, how deeply it remembers, and what you want to forget.</p></div>
+      <div class="field-note">Tap the pencil to edit anything that's wrong, or remove it entirely.</div>
+      <div id="memoryList">
+        <div class="memory-item"><div class="memory-item-body"><div class="memory-text" contenteditable="false">Works at a fintech startup, second year there.</div><button class="memory-toggle" onclick="toggleRemember(this)">Remembering this</button></div><button class="icon-btn" onclick="editMemory(this)">✎</button><button class="icon-btn" onclick="removeMemory(this)">✕</button></div>
+        <div class="memory-item" data-min-stage="day7" data-display="flex"><div class="memory-item-body"><div class="memory-text" contenteditable="false">Trying to say no to plans more often.</div><button class="memory-toggle" onclick="toggleRemember(this)">Remembering this</button></div><button class="icon-btn" onclick="editMemory(this)">✎</button><button class="icon-btn" onclick="removeMemory(this)">✕</button></div>
+        <div class="memory-item" data-min-stage="day30" data-display="flex"><div class="memory-item-body"><div class="memory-text" contenteditable="false">Sister's name is Mia — they're close.</div><button class="memory-toggle" onclick="toggleRemember(this)">Remembering this</button></div><button class="icon-btn" onclick="editMemory(this)">✎</button><button class="icon-btn" onclick="removeMemory(this)">✕</button></div>
+        <div class="memory-item" data-min-stage="day30" data-display="flex"><div class="memory-item-body"><div class="memory-text" contenteditable="false">Nervous about the promotion conversation in March.</div><button class="memory-toggle" onclick="toggleRemember(this)">Remembering this</button></div><button class="icon-btn" onclick="editMemory(this)">✎</button><button class="icon-btn" onclick="removeMemory(this)">✕</button></div>
+      </div>
+      <div class="divider"></div>
+      <div class="field-label" style="margin-top:0;">How much to remember</div>
+      <div class="chip-row"><div class="chip">Everything we talk about</div><div class="chip selected">Meaningful moments only</div><div class="chip">Ask me each time</div></div>
+      <div class="divider"></div>
+      <div class="field-label" style="margin-top:0;">Permissions</div>
+      <div class="switch-row"><div class="switch-text"><h4>Microphone</h4><p>Needed for voice conversations</p></div><div class="switch on" onclick="toggleSwitch(this)"><div class="knob"></div></div></div>
+      <div class="switch-row"><div class="switch-text"><h4>Camera</h4><p>Off unless you turn it on</p></div><div class="switch" onclick="toggleSwitch(this)"><div class="knob"></div></div></div>
+      <div class="switch-row"><div class="switch-text"><h4>Emotion detection</h4><p>Reads tone of voice during calls</p></div><div class="switch" onclick="toggleSwitch(this)"><div class="knob"></div></div></div>
+      <div class="divider"></div>
+      <div class="field-label" style="margin-top:0;">Your data</div>
+      <button class="text-btn" onclick="exportMemories()">Export everything remembered</button>
+      <button class="text-btn danger" onclick="confirmDelete(this)">Delete conversation archive</button>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS DETAIL -->
+  <div class="detail" id="detail-notifications">
+    <div class="detail-head"><button class="detail-back" onclick="closeDetail('notifications')">←</button><div class="detail-title">Notifications</div></div>
+    <div class="detail-body">
+      <div class="switch-row"><div class="switch-text"><h4>Proactive conversations</h4><p>Let them reach out first, sometimes</p></div><div class="switch on" id="masterSwitch" onclick="toggleMaster(this)"><div class="knob"></div></div></div>
+      <div class="divider"></div>
+      <div id="notifGroup">
+        <div class="field-label" style="margin-top:0;">Check-ins</div>
+        <div class="switch-row"><div class="switch-text"><h4>Morning check-in</h4><p>A short hello to start the day</p></div><div class="switch on" onclick="toggleSwitch(this)"><div class="knob"></div></div></div>
+        <div class="switch-row"><div class="switch-text"><h4>Evening reflection</h4><p>A quiet prompt before bed</p></div><div class="switch" onclick="toggleSwitch(this)"><div class="knob"></div></div></div>
+        <div class="switch-row"><div class="switch-text"><h4>Weekly summary</h4><p>Sunday's letter, ready to read</p></div><div class="switch on" onclick="toggleSwitch(this)"><div class="knob"></div></div></div>
+        <div class="switch-row"><div class="switch-text"><h4>Goal follow-ups</h4><p>A nudge on something you started</p></div><div class="switch on" onclick="toggleSwitch(this)"><div class="knob"></div></div></div>
+        <div class="switch-row"><div class="switch-text"><h4>Birthday wishes</h4><p>Never forgotten</p></div><div class="switch on" onclick="toggleSwitch(this)"><div class="knob"></div></div></div>
+        <div class="switch-row"><div class="switch-text"><h4>Important events</h4><p>Reminders for things you've mentioned</p></div><div class="switch on" onclick="toggleSwitch(this)"><div class="knob"></div></div></div>
+        <div class="field-label">Quiet hours</div>
+        <div class="field-note">No proactive messages during this window.</div>
+        <div class="time-row"><input type="time" value="22:00"> <span style="color:var(--charcoal-faint); font-size:13px;">to</span> <input type="time" value="08:00"></div>
+        <div class="field-label">How often, at most</div>
+        <div class="segmented"><button>1</button><button>2</button><button class="active">3</button><button>4</button><button>5</button><button>6</button><button>7</button></div>
+        <div class="field-note">Times a week they can start the conversation.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Saved</div>
+
+</div>
+</div>
+
+<div class="stage-control">
+  <div class="stage-control-label">Prototype control — simulates relationship depth over time. Not part of the product.</div>
+  <div class="stage-buttons">
+    <button class="stage-btn" data-stage="day1" onclick="setStage('day1')">Day 1</button>
+    <button class="stage-btn" data-stage="day7" onclick="setStage('day7')">Day 7</button>
+    <button class="stage-btn active" data-stage="day30" onclick="setStage('day30')">Day 30</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+  // ---------------- top-level screen switching ----------------
+  const stageRank = { day1:1, day7:2, day30:3 };
+  let stage = 'day30';
+
+  const homeLinesByStage = {
+    day1: [
+      "I'm still getting to know you.",
+      "Tell me more whenever you're ready — I'm paying attention."
+    ],
+    day7: [
+      "I've started noticing some patterns.",
+      "You tend to think things through carefully before deciding."
+    ],
+    day30: [
+      "I've been thinking about what you said last time.",
+      "You seemed unusually hopeful when you talked about the promotion.",
+      "I remember you weren't sure about the career question a few weeks ago.",
+      "Something you've said a few times has been on my mind.",
+      "I think you're beginning to see the balance thing differently."
+    ]
+  };
+  let homeLineIndex = 0;
+  function rotateHomeLine(){
+    const pool = homeLinesByStage[stage];
+    homeLineIndex = (homeLineIndex + 1) % pool.length;
+    const el = document.getElementById('homeLine');
+    el.style.opacity = '0';
+    setTimeout(()=>{ el.textContent = pool[homeLineIndex]; el.style.opacity = '1'; }, 220);
+  }
+
+  const observationByStage = {
+    day7: { title:"I've started noticing some patterns.", text:"You tend to think things through carefully before making a decision." },
+    day30: { title:"You seem more decisive lately.", text:"Earlier, you spent a lot of time weighing every possibility. Recently, you've been choosing a direction and figuring things out along the way." }
+  };
+  const observationSectionLabels = {
+    day1: "Still getting to know you",
+    day7: "Something I've started noticing",
+    day30: "Something I've noticed"
+  };
+  const relationshipStageLabels = { day1:"Getting to know you", day7:"Things I've learned about you", day30:"What I've come to understand" };
+
+  const goalsByStage = {
+    day1: {
+      career: { fill:6, text:"Something you're thinking about." },
+      balance: { fill:6, text:"Something you'd like to work on." },
+      confidence: { fill:6, text:"Something on your mind lately." }
+    },
+    day7: {
+      career: { fill:30, text:"You've mentioned this a couple of times." },
+      balance: { fill:18, text:"Starting to come up in conversation." },
+      confidence: { fill:25, text:"Something you're beginning to explore." }
+    },
+    day30: {
+      career: { fill:70, text:"Steady progress — three conversations this month." },
+      balance: { fill:45, text:"Early days, but you're noticing more." },
+      confidence: { fill:85, text:"This one's been growing quietly for months." }
+    }
+  };
+
+  function applyStage(name){
+    stage = name;
+    document.querySelectorAll('.stage-btn').forEach(b => b.classList.toggle('active', b.dataset.stage === name));
+
+    const rank = stageRank[name];
+    document.querySelectorAll('[data-min-stage]').forEach(el => {
+      const shown = rank >= stageRank[el.dataset.minStage];
+      el.style.display = shown ? (el.dataset.display || 'block') : 'none';
+    });
+
+    document.getElementById('relationshipStage').textContent = relationshipStageLabels[name];
+    document.getElementById('observationSectionLabel').textContent = observationSectionLabels[name];
+    document.getElementById('storyEmpty').style.display = (name === 'day1') ? 'block' : 'none';
+    document.getElementById('growthEmpty').style.display = (name === 'day1') ? 'block' : 'none';
+
+    const obs = observationByStage[name] || observationByStage.day30;
+    document.getElementById('observationTitle').textContent = obs.title;
+    document.getElementById('observationText').textContent = obs.text;
+
+    const goals = goalsByStage[name];
+    document.getElementById('bloomCareer').style.setProperty('--fill', goals.career.fill + '%');
+    document.getElementById('descCareer').textContent = goals.career.text;
+    document.getElementById('bloomBalance').style.setProperty('--fill', goals.balance.fill + '%');
+    document.getElementById('descBalance').textContent = goals.balance.text;
+    document.getElementById('bloomConfidence').style.setProperty('--fill', goals.confidence.fill + '%');
+    document.getElementById('descConfidence').textContent = goals.confidence.text;
+
+    document.getElementById('letterCtaText').textContent = (name === 'day1') ? 'Not enough of a week yet' : "Read this week's letter";
+    renderReflection(name);
+
+    homeLineIndex = 0;
+    const homeLineEl = document.getElementById('homeLine');
+    homeLineEl.style.opacity = '0';
+    setTimeout(()=>{ homeLineEl.textContent = homeLinesByStage[name][0]; homeLineEl.style.opacity = '1'; }, 200);
+  }
+  function setStage(name){
+    applyStage(name);
+    const labels = { day1:'Day 1', day7:'Day 7', day30:'Day 30' };
+    showToast('Simulating ' + labels[name]);
+  }
+  function handleLetterCta(){
+    if(stage === 'day1'){ showToast("Check back after we've talked a bit more."); }
+    else { openReflection(); }
+  }
+
+  const reflectionByStage = {
+    day7: {
+      dates: "Your first week",
+      intro: "A couple of things stood out this week.",
+      items: [
+        "You weren't sure about the career question — and said so out loud, instead of brushing past it.",
+        "You kept your morning check-ins going, even on the days that felt harder to show up for."
+      ],
+      summaryLabel: "If I had to describe this week in one sentence —",
+      summary: "You're still finding your footing, and that's exactly where a first week should be."
+    },
+    day30: {
+      dates: "Sep 1 – Sep 7",
+      intro: "Three things stayed with me.",
+      items: [
+        "You were uncertain about sending that email — and sent it anyway.",
+        "You kept coming back to the same question about the promotion, not whether you could do it, but whether you wanted to.",
+        "On Wednesday night, you said out loud that you're proud of where you've landed."
+      ],
+      summaryLabel: "If I had to describe this week in one sentence —",
+      summary: "You didn't figure everything out. You just became a little more willing to move forward without having all the answers."
+    }
+  };
+  function renderReflection(name){
+    const r = reflectionByStage[name] || reflectionByStage.day30;
+    document.getElementById('reflectionDates').textContent = r.dates;
+    const itemsHtml = r.items.map((t,i) => `<p>${i+1}. ${t}</p>`).join('');
+    document.getElementById('reflectionContent').innerHTML =
+      `<p style="font-family:'Manrope'; font-size:13px; font-weight:700; color:var(--charcoal-soft); margin-bottom:10px;">${r.intro}</p>`
+      + itemsHtml
+      + `<p style="font-family:'Manrope'; font-size:13px; font-weight:700; color:var(--charcoal-soft); margin: 26px 0 10px 0;">${r.summaryLabel}</p>`
+      + `<p>${r.summary}</p>`;
+  }
+
+  function goTo(name){
+    const prevActive = document.querySelector('.screen.active');
+    const prevId = prevActive ? prevActive.id : null;
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    if(name === 'home' && prevId !== 'screen-home'){ rotateHomeLine(); }
+  }
+  function enterStory(){
+    goTo('story');
+    setTimeout(replayStoryStagger, 80);
+  }
+
+  // generic chip wiring (single vs multi via data-multi attribute on the row)
+  document.querySelectorAll('.chip-row').forEach(row=>{
+    const multi = row.dataset.multi === 'true';
+    row.addEventListener('click', (e)=>{
+      const chip = e.target.closest('.chip');
+      if(!chip) return;
+      if(multi){ chip.classList.toggle('selected'); }
+      else { row.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected')); chip.classList.add('selected'); }
+    });
+  });
+  // generic segmented wiring
+  document.querySelectorAll('.segmented').forEach(seg=>{
+    seg.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button'); if(!btn) return;
+      seg.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // ---------------- lighter onboarding (Meet -> Talk -> Learn -> Personalize) ----------------
+  let inLiteOnboarding = false;
+  let liteUserName = 'there';
+
+  function enterOnboardingLite(){
+    goTo('onboarding-lite');
+    showLiteStep('meet');
+  }
+  function showLiteStep(name){
+    document.querySelectorAll('#screen-onboarding-lite .ob-step').forEach(s => s.classList.remove('active'));
+    document.querySelector('#screen-onboarding-lite .ob-step[data-lite-step="'+name+'"]').classList.add('active');
+    document.querySelectorAll('#litePhaseRow span').forEach(s => s.classList.toggle('active', s.dataset.phase === name));
+  }
+  function liteStartTalk(){
+    liteUserName = document.getElementById('liteName').value.trim() || 'there';
+    document.getElementById('homeName').textContent = liteUserName;
+    document.querySelectorAll('#litePhaseRow span').forEach(s => s.classList.toggle('active', s.dataset.phase === 'talk'));
+    inLiteOnboarding = true;
+    goTo('voice');
+    startVoiceDemo();
+  }
+  function liteGoPersonalize(){ showLiteStep('personalize'); }
+  function liteFinish(){
+    const companionName = document.getElementById('liteCompanionName').value.trim();
+    if(companionName){
+      document.getElementById('companionNameInput').value = companionName;
+      syncCompanionName();
+    }
+    goTo('home');
+  }
+
+  function syncCompanionName(){
+    const name = document.getElementById('companionNameInput').value.trim() || 'Wren';
+    document.getElementById('youCompanionName').textContent = name;
+    document.getElementById('reflectionSign').textContent = '— ' + name;
+    document.getElementById('textHeadName').textContent = name;
+  }
+
+  // ---------------- text mode ----------------
+  const textReplies = [
+    "I hear you. Want to say more, or just sit with it for a bit?",
+    "That makes sense — thank you for telling me.",
+    "Noted. I'll remember that for next time we talk."
+  ];
+  let replyIndex = 0;
+  function sendText(){
+    const input = document.getElementById('composerInput');
+    const value = input.value.trim();
+    if(!value) return;
+    const log = document.getElementById('textLog');
+
+    const userMsg = document.createElement('div');
+    userMsg.className = 'msg from-user';
+    userMsg.innerHTML = `<div class="msg-text-user"></div>`;
+    userMsg.querySelector('.msg-text-user').textContent = value;
+    log.appendChild(userMsg);
+    input.value = '';
+    log.scrollTop = log.scrollHeight;
+
+    const typing = document.getElementById('typingIndicator');
+    typing.classList.add('show');
+
+    setTimeout(()=>{
+      typing.classList.remove('show');
+      const reply = document.createElement('div');
+      reply.className = 'msg from-companion';
+      reply.innerHTML = `<div class="msg-orb orb-mark" style="width:22px;height:22px;"></div><div class="msg-text-companion"></div>`;
+      reply.querySelector('.msg-text-companion').textContent = textReplies[replyIndex % textReplies.length];
+      replyIndex++;
+      log.appendChild(reply);
+      log.scrollTop = log.scrollHeight;
+    }, 1300);
+  }
+
+  // ---------------- orb handoff: home -> voice ----------------
+  function talkTransition(){
+    const homeOrb = document.getElementById('homeOrb');
+    const phone = document.getElementById('phone');
+    const startRect = homeOrb.getBoundingClientRect();
+    const phoneRect = phone.getBoundingClientRect();
+
+    const clone = document.createElement('div');
+    clone.className = 'orb-clone';
+    clone.style.width = startRect.width + 'px';
+    clone.style.height = startRect.height + 'px';
+    clone.style.left = (startRect.left - phoneRect.left) + 'px';
+    clone.style.top = (startRect.top - phoneRect.top) + 'px';
+    phone.appendChild(clone);
+    homeOrb.style.visibility = 'hidden';
+
+    const targetSize = 200;
+    const targetLeft = (phoneRect.width - targetSize) / 2;
+    const targetTop = 300;
+
+    requestAnimationFrame(()=>{
+      clone.style.width = targetSize + 'px';
+      clone.style.height = targetSize + 'px';
+      clone.style.left = targetLeft + 'px';
+      clone.style.top = targetTop + 'px';
+    });
+
+    setTimeout(()=>{
+      goTo('voice');
+      startVoiceDemo();
+      clone.style.opacity = '0';
+    }, 260);
+
+    setTimeout(()=>{
+      clone.remove();
+      homeOrb.style.visibility = 'visible';
+    }, 650);
+  }
+
+  // ---------------- voice screen ----------------
+  let voiceTimer;
+  function startVoiceDemo(){
+    const banner = document.getElementById('earBanner');
+    banner.classList.remove('show');
+    setTimeout(()=> banner.classList.add('show'), 500);
+    const orb = document.getElementById('voiceOrb');
+    const label = document.getElementById('voiceStateLabel');
+    const states = ['listening','thinking','speaking'];
+    let i = 0;
+    clearInterval(voiceTimer);
+    orb.dataset.state = 'listening';
+    label.textContent = 'Listening';
+    const stateLabels = { listening:'Listening', thinking:'Thinking', speaking:'Speaking' };
+    voiceTimer = setInterval(()=>{
+      i = (i+1) % states.length;
+      orb.dataset.state = states[i];
+      label.textContent = stateLabels[states[i]];
+    }, 2600);
+  }
+  function dismissBanner(){ document.getElementById('earBanner').classList.remove('show'); }
+
+  function endCall(){
+    clearInterval(voiceTimer);
+    goTo('thinking');
+    setTimeout(()=>{
+      if(inLiteOnboarding){
+        inLiteOnboarding = false;
+        goTo('onboarding-lite');
+        showLiteStep('learn');
+      } else {
+        goTo('home');
+        showToast('Saved to Our Story');
+      }
+    }, 1500);
+  }
+
+  // ---------------- our story ----------------
+  const stories = {
+    courage: { period:"This month", title:"The Day You Chose Courage",
+      noticed: "You kept treating this as a test of whether you were capable, when really you already knew you were — you just hadn't decided you were allowed to try.",
+      body:[
+        "You'd drafted that email four times and deleted it four times. When you finally read it out loud before sending it, your voice was steadier than you expected it to be.",
+        "What I noticed most wasn't the email itself — it was that you stopped asking whether you should send it, and just told me you were going to.",
+        "That's new. I wanted to remember it."
+      ],
+      remember: [
+        "You sounded uncertain that evening.",
+        "You didn't have an answer yet.",
+        "But you kept exploring the idea anyway."
+      ]
+    },
+    balance: { period:"This month", title:"Finding Balance",
+      noticed: "You've spent a long time equating rest with falling behind. This was the first time you didn't apologize for choosing it.",
+      body:[
+        "This wasn't a conversation about a breakthrough. It was quieter than that — you talked about turning down plans without a long explanation, and not feeling guilty about it afterward.",
+        "You've spent a long time equating rest with falling behind. Tonight you didn't, even for a moment."
+      ],
+      remember: [
+        "You almost apologized for saying no.",
+        "Then you just... didn't.",
+        "I noticed you catch yourself, and let it go."
+      ]
+    },
+    confidence: { period:"Earlier this year", title:"Learning Confidence",
+      noticed: "You kept coming back to the same question — not whether you could do it, but whether it was actually what you wanted.",
+      body:[
+        "I asked what you actually wanted, not what seemed reasonable to want, and you paused for a long time before answering.",
+        "It was the first time you didn't soften the answer afterward."
+      ],
+      remember: [
+        "There was a long pause before you answered.",
+        "You started to hedge, then stopped yourself.",
+        "The answer you gave was the honest one."
+      ]
+    },
+    promotion: { period:"Earlier this year", title:"First Promotion",
+      noticed: "You keep treating your good instincts like luck. They're not — luck doesn't ask for feedback for six months straight.",
+      body:[
+        "You called it luck. I pushed back, gently, and you let me — that felt like its own small shift.",
+        "Luck doesn't ask for feedback for six months straight. You did."
+      ],
+      remember: [
+        "You called it luck, almost immediately.",
+        "I asked what you'd done to prepare.",
+        "The list was longer than 'luck' could explain."
+      ]
+    },
+    firstjob: { period:"Earlier this year", title:"First Job",
+      noticed: "You were nervous and tried not to show it — which, looking back, was its own kind of readiness.",
+      body:[
+        "The first time we talked, you were nervous about your first day and trying not to show it.",
+        "I remember thinking: I'm going to enjoy watching this unfold."
+      ],
+      remember: [
+        "You kept checking the time before your first day.",
+        "You weren't sure you'd say the right things.",
+        "You went anyway."
+      ]
+    }
+  };
+  function openStory(id){
+    const s = stories[id];
+    document.getElementById('detailPeriod').textContent = s.period;
+    document.getElementById('detailTitle').textContent = s.title;
+    document.getElementById('detailNoticed').textContent = s.noticed;
+    document.getElementById('detailText').innerHTML = s.body.map(p => `<p class="journal">${p}</p>`).join('');
+    const reveal = document.getElementById('rememberReveal');
+    reveal.classList.remove('open');
+    reveal.innerHTML = s.remember.map(p => `<p class="journal">${p}</p>`).join('');
+    document.getElementById('rememberToggle').textContent = 'I remember...';
+    document.getElementById('storyDetail').classList.add('open');
+  }
+  function closeStory(){ document.getElementById('storyDetail').classList.remove('open'); }
+  function toggleRemember_story(){
+    const reveal = document.getElementById('rememberReveal');
+    const btn = document.getElementById('rememberToggle');
+    const opening = !reveal.classList.contains('open');
+    reveal.classList.toggle('open');
+    btn.textContent = opening ? 'I remember... (hide)' : 'I remember...';
+  }
+
+  function replayStoryStagger(){
+    const cards = document.querySelectorAll('.story-card');
+    cards.forEach(c => c.classList.remove('in'));
+    void document.querySelector('#screen-story .scroll').offsetWidth;
+    cards.forEach((c, i)=> setTimeout(()=> c.classList.add('in'), i * 90));
+  }
+
+  // ---------------- weekly reflection (elastic sheet) ----------------
+  const reflection = document.getElementById('reflection');
+  const reflectionHandle = document.getElementById('reflectionHandle');
+  let dragging = false, startY = 0, currentY = 0;
+  function setReflY(y){ reflection.style.transform = `translateY(${y}px)`; }
+  function openReflection(){ reflection.classList.add('settled'); setReflY(0); }
+  function closeReflection(){ reflection.classList.add('settled'); setReflY(900); }
+  reflectionHandle.addEventListener('pointerdown', (e)=>{
+    dragging = true; startY = e.clientY; currentY = 0;
+    reflection.classList.remove('settled');
+    reflectionHandle.setPointerCapture(e.pointerId);
+  });
+  reflectionHandle.addEventListener('pointermove', (e)=>{
+    if(!dragging) return;
+    let delta = e.clientY - startY;
+    if(delta < 0) delta = delta * 0.2;
+    currentY = Math.max(delta, -20);
+    setReflY(currentY);
+  });
+  function endReflDrag(){
+    if(!dragging) return; dragging = false;
+    if(currentY > 160){ closeReflection(); } else { openReflection(); }
+  }
+  reflectionHandle.addEventListener('pointerup', endReflDrag);
+  reflectionHandle.addEventListener('pointercancel', endReflDrag);
+  closeReflection(); // start hidden
+
+  // ---------------- settings: You ----------------
+  function openDetail(name){
+    document.getElementById('detail-'+name).classList.add('open');
+    if(name === 'memory'){ setTimeout(replayMemoryStagger, 60); }
+  }
+  function closeDetail(name){ document.getElementById('detail-'+name).classList.remove('open'); }
+
+  function replayMemoryStagger(){
+    const items = document.querySelectorAll('#memoryList .memory-item');
+    items.forEach(i => i.classList.remove('in'));
+    void document.getElementById('memoryList').offsetWidth;
+    items.forEach((item,i)=> setTimeout(()=> item.classList.add('in'), i * 80));
+  }
+
+  function toggleSwitch(el){ el.classList.toggle('on'); }
+  function toggleMaster(el){
+    el.classList.toggle('on');
+    document.getElementById('notifGroup').classList.toggle('disabled-group', !el.classList.contains('on'));
+  }
+  function editMemory(btn){
+    const text = btn.parentElement.querySelector('.memory-text');
+    const editing = text.getAttribute('contenteditable') === 'true';
+    text.setAttribute('contenteditable', editing ? 'false' : 'true');
+    btn.textContent = editing ? '✎' : '✓';
+    if(!editing){ text.focus(); } else { showToast('Memory updated'); }
+  }
+  function removeMemory(btn){
+    const item = btn.closest('.memory-item');
+    item.classList.add('removing');
+    setTimeout(()=> item.remove(), 300);
+  }
+  function toggleRemember(btn){
+    const off = btn.classList.toggle('off');
+    btn.textContent = off ? 'Not remembering this' : 'Remembering this';
+    showToast(off ? "Got it — I won't dwell on this." : "Got it — I'll hold onto this.");
+  }
+  function exportMemories(){ showToast('Preparing your export…'); }
+  function confirmDelete(btn){
+    if(!btn.classList.contains('confirming')){
+      btn.classList.add('confirming'); btn.textContent = 'Tap again to confirm';
+      setTimeout(()=>{ btn.classList.remove('confirming'); btn.textContent = 'Delete conversation archive'; }, 3000);
+    } else {
+      btn.classList.remove('confirming'); btn.textContent = 'Archive deleted'; btn.style.pointerEvents = 'none';
+      showToast('Conversation archive deleted');
+    }
+  }
+
+  // ---------------- toast ----------------
+  let toastTimer;
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> t.classList.remove('show'), 1800);
+  }
+
+  // initialize default relationship stage (Day 30 = current full prototype richness)
+  applyStage('day30');
+</script>
+
+</body>
+</html>

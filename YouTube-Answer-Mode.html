@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Mobile — Answer Mode Prototype v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --yt-red:#FF0000;
+    --yt-black:#0f0f0f;
+    --yt-gray-1:#606060;
+    --yt-gray-2:#909090;
+    --yt-bg:#ffffff;
+    --yt-border:#e5e5e5;
+    --answer-accent:#065fd4;
+    --answer-bg-2:#f1f7ff;
+    --green:#0a8043;
+    --red-flag:#d93025;
+    --tier-best:#ffb300;
+    --tier-high:#4285f4;
+    --tier-rel:#a8c7fa;
+    --promo-a:#7b2ff7;
+    --promo-b:#065fd4;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{ height:100%; }
+  body{
+    font-family:'Roboto', Arial, sans-serif;
+    background:#e9ebef;
+    color:var(--yt-black);
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    justify-content:center;
+    padding:32px 12px;
+  }
+
+  /* ---------- PHONE FRAME (Android-style) ---------- */
+  .phone-frame{
+    width:390px;
+    height:844px;
+    background:#111;
+    border-radius:28px;
+    padding:10px;
+    box-shadow:0 30px 60px rgba(0,0,0,.35);
+    position:relative;
+    flex-shrink:0;
+  }
+  .phone-screen{
+    width:100%; height:100%;
+    background:var(--yt-bg);
+    border-radius:18px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    position:relative;
+    scrollbar-width:none;
+  }
+  .phone-screen::-webkit-scrollbar{ display:none; }
+
+  /* ---------- STATUS BAR (in normal flow, never overlaps content) ---------- */
+  .status-bar{
+    height:28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 18px;
+    background:#fff;
+    position:sticky;
+    top:0;
+    z-index:25;
+    font-size:12px;
+    font-weight:600;
+    color:var(--yt-black);
+  }
+  .status-bar .sb-icons{ display:flex; align-items:center; gap:5px; font-size:11px; }
+  .status-bar .sb-camera{
+    width:8px; height:8px; border-radius:50%;
+    background:#222;
+  }
+
+  /* ---------- TOP APP BAR ---------- */
+  .topbar{
+    height:52px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 12px;
+    background:#fff;
+    border-bottom:1px solid var(--yt-border);
+    position:sticky;
+    top:28px;
+    z-index:20;
+  }
+  .logo{display:flex;align-items:center;gap:5px;font-weight:700;font-size:17px;letter-spacing:-0.3px;}
+  .logo .play-badge{
+    width:22px;height:16px;background:var(--yt-red);border-radius:5px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .logo .play-badge:after{
+    content:"";
+    width:0;height:0;
+    border-top:4px solid transparent;
+    border-bottom:4px solid transparent;
+    border-left:6px solid #fff;
+    margin-left:1px;
+  }
+  .search-mini{
+    flex:1;
+    display:flex;
+    align-items:center;
+    background:#f2f2f2;
+    border-radius:18px;
+    padding:7px 12px;
+    font-size:13px;
+    color:var(--yt-gray-1);
+    gap:6px;
+  }
+  .search-mini input{
+    border:none; outline:none; background:transparent;
+    font-size:13px; flex:1; color:var(--yt-black); font-family:inherit;
+  }
+  .avatar-sm{
+    width:26px;height:26px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(135deg,#8e44ad,#3498db);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:10px;font-weight:700;
+  }
+
+  /* ---------- ANSWER MODE TOGGLE STRIP ---------- */
+  .am-strip{
+    display:flex; align-items:center; justify-content:space-between;
+    background:linear-gradient(90deg,var(--answer-bg-2),#fff);
+    border-bottom:1px solid #d9e6fb;
+    padding:9px 14px;
+    position:sticky; top:80px; z-index:19;
+  }
+  .am-strip-left{ display:flex; align-items:center; gap:7px; }
+  .am-strip .am-icon{ font-size:14px; }
+  .am-strip .am-label{ font-size:12.5px; font-weight:700; color:var(--answer-accent); }
+  .switch{
+    position:relative;
+    width:34px;height:19px;
+    background:#c9c9c9;
+    border-radius:12px;
+    transition:background .2s ease;
+    flex-shrink:0;
+    cursor:pointer;
+  }
+  .switch.on{ background:var(--answer-accent); }
+  .switch-knob{
+    position:absolute;
+    top:2px;left:2px;
+    width:15px;height:15px;
+    background:#fff;
+    border-radius:50%;
+    box-shadow:0 1px 3px rgba(0,0,0,.3);
+    transition:left .2s ease;
+  }
+  .switch.on .switch-knob{ left:17px; }
+
+  /* ---------- BOTTOM NAV ---------- */
+  .bottom-nav{
+    position:sticky;
+    bottom:0;
+    display:flex;
+    background:#fff;
+    border-top:1px solid var(--yt-border);
+    z-index:20;
+  }
+  .nav-item{
+    flex:1;
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    padding:8px 0 10px;
+    font-size:10px;
+    color:var(--yt-gray-1);
+    cursor:pointer;
+  }
+  .nav-item.active{ color:var(--yt-black); font-weight:600; }
+  .nav-item .ni-icon{ font-size:18px; }
+  .nav-item.plus .ni-icon{
+    width:26px;height:20px; background:#f2f2f2; border-radius:6px;
+    display:flex; align-items:center; justify-content:center; font-size:16px;
+  }
+
+  /* ---------- PAGES ---------- */
+  .page{ display:none; padding-bottom:8px; }
+  .page.active{ display:block; }
+
+  /* ---------- HOME PAGE ---------- */
+  .home-hero{
+    margin:12px;
+    background:#fff;
+    border:1px solid var(--yt-border);
+    border-radius:14px;
+    padding:16px;
+  }
+  .badge-new{
+    display:inline-block;
+    background:var(--answer-accent);
+    color:#fff;
+    font-size:9px;
+    font-weight:700;
+    letter-spacing:.5px;
+    padding:2px 7px;
+    border-radius:9px;
+    margin-bottom:8px;
+  }
+  .home-hero h1{ font-size:17px; margin-bottom:5px; }
+  .home-hero p{ color:var(--yt-gray-1); font-size:12.5px; line-height:1.5; margin-bottom:12px; }
+  .hero-toggle-row{
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--answer-bg-2);
+    border-radius:10px;
+    padding:9px 12px;
+  }
+
+  .feed{ padding:4px 0 12px; }
+  .fcard{ margin-bottom:16px; }
+  .fthumb{
+    width:100%;
+    aspect-ratio:16/9;
+    background:linear-gradient(135deg,var(--thumb-a,#667eea),var(--thumb-b,#764ba2));
+    position:relative;
+  }
+  .fthumb .dur{
+    position:absolute; bottom:6px; right:8px;
+    background:rgba(0,0,0,.8); color:#fff;
+    font-size:11px; font-weight:600;
+    padding:2px 5px; border-radius:4px;
+  }
+  .fmeta{ display:flex; gap:10px; padding:10px 12px 0; }
+  .fch-avatar{
+    width:36px;height:36px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(135deg,#f093fb,#f5576c);
+  }
+  .finfo .ftitle{ font-size:14px; font-weight:500; line-height:1.35; margin-bottom:2px;}
+  .finfo .fsub{ font-size:12px; color:var(--yt-gray-1); line-height:1.4;}
+
+  /* ---------- SEARCH RESULTS ---------- */
+  .search-page-inner{ padding-bottom:12px; }
+  .mode-banner{
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+    background:var(--answer-bg-2);
+    border-bottom:1px solid #cfe0fb;
+    padding:10px 14px;
+    font-size:12px;
+    color:var(--answer-accent);
+    font-weight:500;
+    line-height:1.4;
+  }
+  .result-row{
+    padding:14px 12px;
+    border-bottom:1px solid var(--yt-border);
+  }
+  .result-row .rthumb{
+    width:100%; aspect-ratio:16/9;
+    border-radius:10px;
+    background:linear-gradient(135deg,var(--thumb-a,#667eea),var(--thumb-b,#764ba2));
+    position:relative;
+    margin-bottom:8px;
+  }
+  .result-row .rthumb .dur{
+    position:absolute; bottom:6px; right:6px;
+    background:rgba(0,0,0,.8); color:#fff;
+    font-size:11px; font-weight:600;
+    padding:2px 5px; border-radius:4px;
+  }
+  .rmeta{ display:flex; gap:10px; }
+  .rmeta .fch-avatar{ width:34px;height:34px; }
+  .rinfo .rtitle{ font-size:14px; font-weight:500; margin-bottom:3px; line-height:1.35;}
+  .rinfo .rsub{ font-size:12px; color:var(--yt-gray-1); }
+
+  /* ---------- PROMO CARD (regular mode) ---------- */
+  .promo-card{
+    margin:12px;
+    border-radius:14px;
+    padding:16px;
+    background:linear-gradient(135deg, var(--promo-a), var(--promo-b));
+    color:#fff;
+    position:relative;
+    overflow:hidden;
+  }
+  .promo-card:before{
+    content:"";
+    position:absolute; top:-30px; right:-30px;
+    width:120px; height:120px; border-radius:50%;
+    background:rgba(255,255,255,.08);
+  }
+  .promo-badge{
+    display:inline-block;
+    background:rgba(255,255,255,.2);
+    font-size:9.5px; font-weight:700; letter-spacing:.4px;
+    padding:3px 8px; border-radius:9px;
+    margin-bottom:8px;
+  }
+  .promo-title{ font-size:15.5px; font-weight:700; margin-bottom:6px; }
+  .promo-list{ list-style:none; margin-bottom:12px; }
+  .promo-list li{
+    font-size:12px; line-height:1.6; opacity:.95;
+    display:flex; align-items:flex-start; gap:6px;
+    margin-bottom:2px;
+  }
+  .promo-list li:before{ content:"✨"; flex-shrink:0; }
+  .promo-actions{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .promo-cta{
+    background:#fff; color:var(--promo-b);
+    border:none; font-size:12.5px; font-weight:700;
+    padding:9px 16px; border-radius:18px; cursor:pointer;
+  }
+  .promo-dismiss{
+    background:none; border:none; color:rgba(255,255,255,.85);
+    font-size:12px; font-weight:600; cursor:pointer;
+    text-decoration:underline;
+  }
+  .promo-card.dismissed{ display:none; }
+
+  /* ---------- TIER BADGES ---------- */
+  .tier-badge{
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:10.5px; font-weight:700;
+    padding:3px 9px; border-radius:11px;
+    color:#fff;
+  }
+  .tier-badge.best{ background:var(--tier-best); color:#3a2600; }
+  .tier-badge.high{ background:var(--tier-high); }
+  .tier-badge.rel{ background:var(--tier-rel); color:#1a3a6b; }
+  .tier-dot{ width:8px;height:8px;border-radius:50%; display:inline-block; }
+  .tier-dot.best{ background:var(--tier-best); }
+  .tier-dot.high{ background:var(--tier-high); }
+  .tier-dot.rel{ background:var(--tier-rel); }
+
+  /* Answer card */
+  .answer-card{
+    margin:12px;
+    background:#fff;
+    border:1.5px solid var(--answer-accent);
+    border-radius:14px;
+    padding:12px;
+    box-shadow:0 1px 3px rgba(6,95,212,.08);
+  }
+  .answer-thumb{
+    width:100%; aspect-ratio:16/9;
+    border-radius:10px;
+    background:linear-gradient(135deg,var(--thumb-a,#667eea),var(--thumb-b,#764ba2));
+    position:relative;
+    cursor:pointer;
+    margin:9px 0 10px;
+  }
+  .answer-thumb .ts-badge{
+    position:absolute; bottom:6px; right:6px;
+    background:rgba(0,0,0,.85); color:#fff;
+    font-size:11px; font-weight:700;
+    padding:3px 6px; border-radius:4px;
+  }
+  .answer-thumb .label-badge{
+    position:absolute; bottom:6px; left:6px;
+    background:rgba(255,255,255,.92); color:#222;
+    font-size:10.5px; font-weight:600;
+    padding:3px 7px; border-radius:4px;
+    max-width:70%;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .answer-thumb .play-overlay{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .play-circle{
+    width:34px;height:34px;border-radius:50%;
+    background:rgba(255,255,255,.92);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .play-circle:after{
+    content:""; width:0;height:0;
+    border-top:6px solid transparent; border-bottom:6px solid transparent;
+    border-left:10px solid var(--yt-black); margin-left:3px;
+  }
+  .answer-title{ font-size:14.5px; font-weight:600; margin-bottom:3px; }
+  .answer-channel{ font-size:12px; color:var(--yt-gray-1); margin-bottom:8px; }
+  .answer-snippet{
+    font-size:12.5px; line-height:1.5; color:#333;
+    background:var(--answer-bg-2);
+    border-left:3px solid var(--answer-accent);
+    padding:7px 9px;
+    border-radius:0 6px 6px 0;
+    margin-bottom:10px;
+  }
+
+  .why-matched{
+    background:#fafbfc;
+    border:1px solid #e8ecf2;
+    border-radius:8px;
+    padding:9px 10px;
+    margin-bottom:10px;
+  }
+  .why-matched-title{
+    font-size:10.5px; font-weight:700; color:var(--yt-gray-1);
+    text-transform:uppercase; letter-spacing:.4px;
+    margin-bottom:6px;
+  }
+  .why-matched ul{ list-style:none; }
+  .why-matched li{
+    font-size:12px; color:#333; line-height:1.6;
+    display:flex; align-items:flex-start; gap:6px;
+  }
+  .why-matched li:before{
+    content:"✓"; color:var(--green); font-weight:700; flex-shrink:0;
+  }
+  .why-matched.mini{ padding:7px 9px; margin-bottom:0; }
+  .why-matched.mini .why-matched-title{ font-size:9.5px; margin-bottom:4px; }
+  .why-matched.mini li{ font-size:11px; line-height:1.5; }
+
+  .answer-actions{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px; }
+  .btn-secondary{
+    background:#f2f2f2; border:1px solid #d9d9d9;
+    color:var(--yt-black); font-size:12px; font-weight:600;
+    padding:7px 11px; border-radius:16px; cursor:pointer;
+    display:flex; align-items:center; gap:5px;
+  }
+  .btn-link{
+    background:none; border:none; color:var(--answer-accent);
+    font-size:12px; font-weight:700; cursor:pointer;
+    display:flex; align-items:center; gap:4px;
+    padding:7px 2px; width:100%;
+  }
+
+  .sections-panel{
+    margin-top:6px;
+    border-top:1px dashed #cfd8e6;
+    padding-top:10px;
+    display:none;
+  }
+  .sections-panel.open{ display:block; }
+  .sections-panel-title{
+    font-size:10.5px; font-weight:700; color:var(--yt-gray-1);
+    text-transform:uppercase; letter-spacing:.4px;
+    margin-bottom:8px;
+  }
+  .panel-full-video-btn{
+    width:100%;
+    justify-content:center;
+    margin-top:10px;
+  }
+  .section-item{ display:flex; flex-direction:column; gap:8px; padding:10px 4px; border-radius:8px; }
+  .section-item + .section-item{ border-top:1px solid #f0f0f0; }
+  .section-item-top{ display:flex; gap:10px; }
+  .section-mini-thumb{
+    width:88px; min-width:88px; height:50px;
+    border-radius:6px;
+    background:linear-gradient(135deg,var(--thumb-a,#667eea),var(--thumb-b,#764ba2));
+    position:relative; cursor:pointer;
+  }
+  .section-mini-thumb .ts-badge{
+    position:absolute; bottom:3px; right:3px;
+    background:rgba(0,0,0,.85); color:#fff;
+    font-size:9.5px; font-weight:700;
+    padding:2px 4px; border-radius:3px;
+  }
+  .section-item-info{ flex:1; min-width:0; }
+  .si-label{ font-size:12.5px; font-weight:700; color:var(--yt-black); margin-bottom:1px; }
+  .si-time-row{ display:flex; align-items:center; gap:6px; margin-bottom:3px; }
+  .si-time{ font-size:11.5px; font-weight:600; color:var(--answer-accent); cursor:pointer; }
+  .si-summary{ font-size:12px; color:#333; line-height:1.4; margin-bottom:5px;}
+
+  .feedback-row{ display:flex; align-items:center; gap:5px; }
+  .fb-btn{
+    width:25px;height:25px; border-radius:50%;
+    border:1px solid #ddd; background:#fff;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:11.5px;
+  }
+  .fb-btn.active-up{ background:#e6f4ea; border-color:var(--green); }
+  .fb-btn.active-down{ background:#fce8e6; border-color:var(--red-flag); }
+  .fb-note{ font-size:10.5px; color:var(--yt-gray-2); margin-right:2px; }
+
+  /* ---------- WATCH PAGE ---------- */
+  .player-shell{
+    width:100%; aspect-ratio:16/9;
+    background:linear-gradient(135deg,var(--thumb-a,#232526),var(--thumb-b,#414345));
+    position:relative;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .player-shell .big-play{
+    width:52px;height:52px;border-radius:50%;
+    background:rgba(255,255,255,.15);
+    border:2px solid rgba(255,255,255,.7);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .player-shell .big-play:after{
+    content:""; width:0;height:0;
+    border-top:9px solid transparent; border-bottom:9px solid transparent;
+    border-left:14px solid #fff; margin-left:3px;
+  }
+  .player-current-time{
+    position:absolute; top:10px; left:10px;
+    background:rgba(0,0,0,.6); color:#fff;
+    font-size:11px; font-weight:600;
+    padding:3px 8px; border-radius:5px;
+  }
+  .player-label-tag{
+    position:absolute; bottom:10px; left:10px;
+    background:rgba(0,0,0,.65); color:#fff;
+    font-size:11px; font-weight:600;
+    padding:4px 9px; border-radius:6px;
+  }
+  .mode-off-badge{
+    position:absolute; top:10px; right:10px;
+    background:rgba(255,255,255,.9); color:#444;
+    font-size:10px; font-weight:600;
+    padding:3px 8px; border-radius:5px;
+  }
+
+  .scrubber-wrap{ background:#0f0f0f; padding:8px 4px 10px; }
+  .scrubber{
+    position:relative;
+    height:10px; background:#4d4d4d; border-radius:5px;
+    margin:0 10px; cursor:pointer;
+  }
+  .scrub-segment{
+    position:absolute; top:0; bottom:0; border-radius:5px; cursor:pointer;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);
+  }
+  .scrub-segment.best{ background:var(--tier-best); }
+  .scrub-segment.high{ background:var(--tier-high); }
+  .scrub-segment.rel{ background:var(--tier-rel); }
+  .scrub-playhead{
+    position:absolute; top:-4px;
+    width:14px; height:14px; border-radius:50%;
+    background:var(--yt-red);
+    border:2px solid #fff;
+    transform:translateX(-50%);
+    transition:left .3s ease;
+    z-index:5;
+  }
+  .scrubber-legend{ display:flex; gap:10px; margin:8px 10px 0; font-size:9.5px; color:#ccc; align-items:center; flex-wrap:wrap; }
+  .legend-dot{ width:9px;height:9px;border-radius:3px; display:inline-block; margin-right:3px; }
+
+  .chip-strip{
+    display:flex; gap:8px; overflow-x:auto;
+    padding:10px 10px 2px;
+    background:#0f0f0f;
+    scrollbar-width:none;
+  }
+  .chip-strip::-webkit-scrollbar{ display:none; }
+  .chapter-chip{
+    flex-shrink:0;
+    display:flex; flex-direction:column; gap:2px;
+    background:#1f1f1f;
+    border:1px solid #333;
+    border-radius:8px;
+    padding:6px 10px;
+    cursor:pointer;
+    min-width:100px;
+  }
+  .chapter-chip.active{ border-color:#fff; background:#2a2a2a; }
+  .chapter-chip .cc-time{ font-size:10px; font-weight:700; color:#fff; display:flex; align-items:center; gap:4px; }
+  .chapter-chip .cc-label{ font-size:10.5px; color:#ddd; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:110px; }
+
+  .watch-body{ padding:12px; }
+  .watch-title{ font-size:16px; font-weight:600; margin-bottom:8px; line-height:1.35;}
+  .watch-meta-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding-bottom:12px; border-bottom:1px solid var(--yt-border); margin-bottom:12px;
+    gap:8px; flex-wrap:wrap;
+  }
+  .watch-meta-left{ display:flex; align-items:center; gap:10px; }
+  .watch-meta-left .fch-avatar{ width:36px;height:36px; }
+  .ch-name{ font-size:13.5px; font-weight:600; }
+  .ch-subs, .watch-views{ font-size:11px; color:var(--yt-gray-1); }
+  .subscribe-btn{
+    background:var(--yt-black); color:#fff; font-size:12px; font-weight:600;
+    border:none; border-radius:16px; padding:7px 14px; cursor:pointer;
+  }
+
+  .why-moment{
+    background:var(--answer-bg-2);
+    border:1px solid #cfe0fb;
+    border-radius:10px;
+    padding:10px 12px;
+    font-size:12px;
+    line-height:1.5;
+    color:#1a4b8f;
+    margin-bottom:14px;
+  }
+  .why-moment .wm-label{ font-weight:700; }
+
+  .plain-desc{
+    background:#f7f7f7;
+    border-radius:10px;
+    padding:10px 12px;
+    font-size:12px;
+    color:var(--yt-gray-1);
+    line-height:1.5;
+    margin-bottom:14px;
+  }
+
+  .transcript-section-title{
+    font-size:13px; font-weight:700; margin-bottom:10px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .transcript-section-title .tag{ font-size:10px; color:var(--yt-gray-2); font-weight:400; }
+  .transcript-item{
+    display:flex; gap:10px; padding:9px 6px;
+    border-left:3px solid transparent; border-radius:6px;
+    cursor:pointer;
+  }
+  .transcript-item.active{ background:var(--answer-bg-2); border-left:3px solid var(--answer-accent); }
+  .t-time{ font-size:11.5px; font-weight:700; color:var(--answer-accent); min-width:42px; }
+  .t-label{ font-size:12.5px; font-weight:700; color:var(--yt-black); margin-bottom:1px; }
+  .t-text{ font-size:12px; line-height:1.45; color:#555; }
+  .transcript-item.active .t-text{ color:#333; }
+
+  .back-link{
+    display:flex; align-items:center; gap:6px;
+    font-size:12.5px; color:var(--yt-gray-1); cursor:pointer;
+    padding:10px 12px 2px;
+  }
+
+  .toast{
+    position:absolute; bottom:64px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:#323232; color:#fff; font-size:12px;
+    padding:10px 16px; border-radius:8px;
+    opacity:0; pointer-events:none;
+    transition:all .25s ease;
+    z-index:100;
+    white-space:nowrap;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .frame-caption{
+    text-align:center; color:#888; font-size:12px; margin-top:14px;
+  }
+
+  /* ---------- FLOATING WATCH-FULL-VIDEO BUTTON ---------- */
+  .floating-watch-full{
+    position:absolute;
+    left:50%;
+    bottom:66px;
+    transform:translate(-50%, 12px);
+    z-index:60;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .18s ease, transform .18s ease;
+  }
+  .floating-watch-full.visible{
+    opacity:1;
+    pointer-events:auto;
+    transform:translate(-50%, 0);
+  }
+  .floating-watch-full button{
+    display:flex; align-items:center; gap:7px;
+    background:var(--yt-black);
+    color:#fff;
+    border:none;
+    font-size:12.5px; font-weight:600;
+    padding:10px 18px;
+    border-radius:22px;
+    box-shadow:0 6px 16px rgba(0,0,0,.3);
+    cursor:pointer;
+    white-space:nowrap;
+  }
+</style>
+</head>
+<body>
+
+<div>
+  <div class="phone-frame">
+    <div class="phone-screen" id="phoneScreen">
+      <div class="status-bar">
+        <span>9:41</span>
+        <span class="sb-icons">
+          <span class="sb-camera"></span>
+          📶 🔋
+        </span>
+      </div>
+
+      <!-- ================= TOP BAR ================= -->
+      <div class="topbar">
+        <div class="logo"><div class="play-badge"></div>YouTube</div>
+        <div class="search-mini">
+          🔍
+          <input id="searchInput" type="text" value="how to fix overexposed photos in lightroom" placeholder="Search">
+        </div>
+        <div class="avatar-sm">PM</div>
+      </div>
+
+      <div class="am-strip">
+        <div class="am-strip-left">
+          <span class="am-icon">✨</span>
+          <span class="am-label">Answer Mode</span>
+        </div>
+        <div class="switch" id="switchEl" onclick="toggleAnswerMode()"><div class="switch-knob"></div></div>
+      </div>
+
+      <!-- ================= HOME PAGE ================= -->
+      <div class="page active" id="page-home">
+        <div class="home-hero">
+          <span class="badge-new">NEW</span>
+          <h1>Meet Answer Mode</h1>
+          <p>Search a question and jump straight to the moment that answers it. Turn it on to try it, or keep browsing as usual.</p>
+          <div class="hero-toggle-row">
+            <span style="font-size:12px;font-weight:600;color:var(--answer-accent);">✨ Try Answer Mode</span>
+            <div class="switch" id="switchElHero" onclick="toggleAnswerMode()"><div class="switch-knob"></div></div>
+          </div>
+        </div>
+        <div class="feed" id="homeFeed"></div>
+      </div>
+
+      <!-- ================= SEARCH RESULTS PAGE ================= -->
+      <div class="page" id="page-search">
+        <div class="back-link" onclick="goHome()">← Back to Home</div>
+        <div class="search-page-inner">
+          <div id="modeBanner"></div>
+          <div id="searchResults"></div>
+        </div>
+      </div>
+
+      <!-- ================= WATCH PAGE ================= -->
+      <div class="page" id="page-watch">
+        <div class="back-link" onclick="goBackToSearch()">← Back to results</div>
+        <div class="player-shell" id="playerShell">
+          <div class="player-current-time" id="playerTime">0:00</div>
+          <div class="mode-off-badge" id="modeOffBadge" style="display:none;">Answer Mode off</div>
+          <div class="player-label-tag" id="playerLabelTag" style="display:none;"></div>
+          <div class="big-play"></div>
+        </div>
+        <div class="scrubber-wrap">
+          <div class="scrubber" id="scrubber"></div>
+          <div class="scrubber-legend" id="scrubberLegend">
+            <span><span class="legend-dot" style="background:var(--tier-best);"></span>Best Match</span>
+            <span><span class="legend-dot" style="background:var(--tier-high);"></span>Highly Relevant</span>
+            <span><span class="legend-dot" style="background:var(--tier-rel);"></span>Relevant</span>
+          </div>
+        </div>
+        <div class="chip-strip" id="chipStrip"></div>
+        <div class="watch-body">
+          <div class="watch-title" id="watchTitle"></div>
+          <div class="watch-meta-row">
+            <div class="watch-meta-left">
+              <div class="fch-avatar"></div>
+              <div>
+                <div class="ch-name" id="watchChannel"></div>
+                <div class="ch-subs">842K subscribers</div>
+              </div>
+            </div>
+            <button class="subscribe-btn">Subscribe</button>
+          </div>
+          <div id="watchViewsLine" class="ch-subs" style="margin-bottom:12px;"></div>
+
+          <div id="whyMomentWrap"></div>
+          <div id="plainDescWrap"></div>
+
+          <div id="transcriptWrap"></div>
+        </div>
+      </div>
+
+      <!-- ================= BOTTOM NAV ================= -->
+      <div class="bottom-nav">
+        <div class="nav-item active" onclick="goHome()"><span class="ni-icon">🏠</span>Home</div>
+        <div class="nav-item"><span class="ni-icon">🎬</span>Shorts</div>
+        <div class="nav-item plus"><span class="ni-icon">＋</span></div>
+        <div class="nav-item"><span class="ni-icon">📺</span>Subs</div>
+        <div class="nav-item"><span class="ni-icon">👤</span>You</div>
+      </div>
+
+      <div class="toast" id="toast">Thanks — this helps improve future results</div>
+    </div>
+
+    <div class="floating-watch-full" id="floatingWatchFull">
+      <button onclick="openWatchFromFloating()">🎬 Watch full video</button>
+    </div>
+  </div>
+  <div class="frame-caption">Answer Mode — mobile clickable prototype (v7, Android-style device)</div>
+</div>
+
+<script>
+/* ============================================================
+   DATA
+   ============================================================ */
+const QUERY = "how to fix overexposed photos in lightroom";
+
+const VIDEOS = [
+  {
+    id: 'v1',
+    title: 'Complete Lightroom Tutorial for Beginners (2026)',
+    channel: 'Photography Pro',
+    views: '1.2M views',
+    uploaded: '4 months ago',
+    duration: '45:12',
+    colorA: '#667eea', colorB: '#764ba2',
+    sections: [
+      { time:'4:32', end:'6:10', tsSeconds:272, relevance:0.95, label:'Highlight Recovery',
+        summary:'Drag the Highlights and Whites sliders down in the Basic panel to instantly recover blown-out skies and bright skin tones.',
+        reasons:['Explains highlight recovery step by step', 'Directly demonstrates the Highlights & Whites sliders', 'Shows a before/after on a real overexposed photo'] },
+      { time:'12:05', end:'13:40', tsSeconds:725, relevance:0.81, label:'Radial Filter Fix',
+        summary:'Using the Radial Filter to selectively reduce exposure in just the overexposed region of a photo.',
+        reasons:['Covers selective (not global) exposure correction', 'Useful when only part of the photo is blown out'] },
+      { time:'21:47', end:'23:02', tsSeconds:1307, relevance:0.74, label:'Reading the Histogram',
+        summary:'Reading the histogram to spot clipped highlights before you start editing.',
+        reasons:['Helps identify overexposed areas before editing', 'Foundational skill referenced later in the video'] },
+      { time:'33:15', end:'34:50', tsSeconds:1995, relevance:0.68, label:'RAW vs JPEG',
+        summary:'Recovering detail from RAW files vs JPEG — why RAW gives you more headroom to fix overexposure.',
+        reasons:['Explains why some fixes work better in RAW', 'Relevant if recovery attempts aren\'t working'] },
+      { time:'40:02', end:'41:20', tsSeconds:2402, relevance:0.61, label:'Batch Editing',
+        summary:'Batch-applying an exposure fix across multiple overexposed shots from the same shoot.',
+        reasons:['Useful once you have a working fix', 'Saves time across many photos'] },
+    ]
+  },
+  {
+    id: 'v2',
+    title: 'Fixing Blown Highlights: A Quick Lightroom Fix',
+    channel: 'Edit With Mia',
+    views: '340K views',
+    uploaded: '1 year ago',
+    duration: '9:48',
+    colorA: '#f093fb', colorB: '#f5576c',
+    sections: [
+      { time:'1:14', end:'2:40', tsSeconds:74, relevance:0.9, label:'Quick Highlight Fix',
+        summary:'A fast 90-second fix using the Highlights slider and the Dehaze tool together.',
+        reasons:['Directly addresses blown-out highlights', 'Fast, beginner-friendly walkthrough', 'Combines two tools for a stronger fix'] },
+      { time:'5:30', end:'6:15', tsSeconds:330, relevance:0.7, label:'Graduated Filter Fix',
+        summary:'When the highlight slider alone isn\'t enough — using a graduated filter over the sky.',
+        reasons:['Covers a fallback when the quick fix isn\'t enough', 'Specific to overexposed skies'] },
+    ]
+  },
+  {
+    id: 'v3',
+    title: 'Wedding Photography Podcast — Episode 42: Editing Workflow',
+    channel: 'Shutter Talk Podcast',
+    views: '88K views',
+    uploaded: '2 weeks ago',
+    duration: '1:32:07',
+    colorA: '#43cea2', colorB: '#185a9d',
+    sections: [
+      { time:'58:20', end:'1:01:45', tsSeconds:3500, relevance:0.88, label:'Wedding Dress Recovery',
+        summary:'The hosts walk through recovering an overexposed wedding dress shot in Lightroom step by step.',
+        reasons:['Walks through a real, relatable overexposure case', 'Step-by-step Lightroom demo, not just talk'] },
+      { time:'1:14:02', end:'1:15:30', tsSeconds:4442, relevance:0.66, label:'Avoiding Overexposure',
+        summary:'Discussing camera settings to avoid overexposure at the source, before you even get to editing.',
+        reasons:['Addresses prevention, not just correction', 'Useful alongside the editing fix above'] },
+    ]
+  }
+];
+
+let answerModeOn = false;
+let feedbackState = {};
+let promoDismissed = false;
+
+/* ============================================================
+   TIER HELPERS
+   ============================================================ */
+function tierInfo(section, isTop){
+  if(isTop) return { key:'best', label:'Best Match' };
+  if(section.relevance >= 0.75) return { key:'high', label:'Highly Relevant' };
+  return { key:'rel', label:'Relevant' };
+}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('phoneScreen').scrollTop = 0;
+  updateFloatingWatchFull();
+}
+function goHome(){ showPage('page-home'); }
+function goBackToSearch(){ showPage('page-search'); }
+
+function toggleAnswerMode(){
+  answerModeOn = !answerModeOn;
+  document.querySelectorAll('.switch').forEach(s=>s.classList.toggle('on', answerModeOn));
+  if(document.getElementById('page-search').classList.contains('active')){
+    renderSearch();
+  }
+}
+
+function enableAnswerModeFromPromo(){
+  answerModeOn = true;
+  document.querySelectorAll('.switch').forEach(s=>s.classList.add('on'));
+  showToast('Answer Mode turned on');
+  renderSearch();
+}
+
+function dismissPromo(){
+  promoDismissed = true;
+  renderSearch();
+}
+
+/* ============================================================
+   HOME FEED
+   ============================================================ */
+function renderHomeFeed(){
+  const feed = document.getElementById('homeFeed');
+  const sample = [
+    {title:'10 Lightroom Presets Every Photographer Needs', ch:'Photography Pro', views:'560K views', dur:'14:22', a:'#667eea', b:'#764ba2'},
+    {title:'Editing a Full Wedding Gallery — Start to Finish', ch:'Shutter Talk Podcast', views:'210K views', dur:'58:03', a:'#43cea2', b:'#185a9d'},
+    {title:'Golden Hour Portrait Editing Tutorial', ch:'Edit With Mia', views:'420K views', dur:'11:09', a:'#f093fb', b:'#f5576c'},
+    {title:'Why Your Photos Look Flat (And How to Fix It)', ch:'Photography Pro', views:'980K views', dur:'16:40', a:'#fa709a', b:'#fee140'},
+  ];
+  feed.innerHTML = sample.map(v=>`
+    <div class="fcard">
+      <div class="fthumb" style="--thumb-a:${v.a};--thumb-b:${v.b};"><div class="dur">${v.dur}</div></div>
+      <div class="fmeta">
+        <div class="fch-avatar"></div>
+        <div class="finfo">
+          <div class="ftitle">${v.title}</div>
+          <div class="fsub">${v.ch}</div>
+          <div class="fsub">${v.views} · uploaded recently</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ============================================================
+   SEARCH
+   ============================================================ */
+function runSearch(){
+  showPage('page-search');
+  renderSearch();
+}
+
+function renderSearch(){
+  const banner = document.getElementById('modeBanner');
+  const results = document.getElementById('searchResults');
+
+  if(answerModeOn){
+    banner.innerHTML = `<div class="mode-banner">✨ Answer Mode is on — showing the exact moments that answer "<strong>${QUERY}</strong>"</div>`;
+    results.innerHTML = VIDEOS.map(v => renderAnswerCard(v)).join('');
+  } else {
+    banner.innerHTML = '';
+    const promo = promoDismissed ? '' : renderPromoCard();
+    results.innerHTML = promo + VIDEOS.map(v => renderRegularRow(v)).join('');
+  }
+  updateFloatingWatchFull();
+}
+
+function renderPromoCard(){
+  return `
+    <div class="promo-card" id="promoCard">
+      <span class="promo-badge">NEW</span>
+      <div class="promo-title">✨ Try the new Answer Mode!</div>
+      <ul class="promo-list">
+        <li>Jump straight to the exact moment that answers your question</li>
+        <li>See an AI summary of each relevant moment before you click</li>
+        <li>Skip the guesswork on long videos and podcasts</li>
+      </ul>
+      <div class="promo-actions">
+        <button class="promo-cta" onclick="enableAnswerModeFromPromo()">Turn on Answer Mode</button>
+        <button class="promo-dismiss" onclick="dismissPromo()">Not now</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderRegularRow(v){
+  return `
+    <div class="result-row">
+      <div class="rthumb" style="--thumb-a:${v.colorA};--thumb-b:${v.colorB};" onclick="openWatch('${v.id}')">
+        <div class="dur">${v.duration}</div>
+      </div>
+      <div class="rmeta">
+        <div class="fch-avatar"></div>
+        <div class="rinfo">
+          <div class="rtitle" onclick="openWatch('${v.id}')">${v.title}</div>
+          <div class="rsub">${v.channel}</div>
+          <div class="rsub">${v.views} · ${v.uploaded}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderAnswerCard(v){
+  const sorted = [...v.sections].sort((a,b)=>b.relevance - a.relevance);
+  const top = sorted[0];
+  const others = sorted.slice(1);
+  const topIdx = v.sections.indexOf(top);
+  const topTier = tierInfo(top, true);
+
+  const othersToggle = others.length ? `
+    <button class="btn-link" onclick="toggleSections('${v.id}')" id="toggle-${v.id}">
+      ▾ ${others.length} other relevant section${others.length>1?'s':''}
+    </button>
+  ` : '';
+
+  const sectionsListHTML = others.map(s => renderSectionItem(v, s)).join('');
+  const reasonsHTML = (top.reasons||[]).map(r=>`<li>${r}</li>`).join('');
+
+  return `
+    <div class="answer-card" id="card-${v.id}">
+      <span class="tier-badge best">✨ ${topTier.label}</span>
+      <div class="answer-thumb" style="--thumb-a:${v.colorA};--thumb-b:${v.colorB};" onclick="openWatch('${v.id}', ${topIdx})">
+        <div class="play-overlay"><div class="play-circle"></div></div>
+        <div class="label-badge">${top.label}</div>
+        <div class="ts-badge">▶ ${top.time}</div>
+      </div>
+      <div class="answer-title" onclick="openWatch('${v.id}', ${topIdx})">${v.title}</div>
+      <div class="answer-channel">${v.channel} · ${v.views}</div>
+      <div class="answer-snippet">"${top.summary}"</div>
+
+      <div class="why-matched">
+        <div class="why-matched-title">Why this moment matched</div>
+        <ul>${reasonsHTML}</ul>
+      </div>
+
+      <div class="answer-actions">
+        <button class="btn-secondary" onclick="openWatch('${v.id}', ${topIdx})">▶ Jump to ${top.time}</button>
+        <button class="btn-secondary" onclick="openWatch('${v.id}', -1)">🎬 Full video</button>
+      </div>
+      ${renderFeedbackRow(v.id, top.time)}
+      ${othersToggle}
+      <div class="sections-panel" id="panel-${v.id}">
+        <div class="sections-panel-title">All relevant moments in this video</div>
+        ${sectionsListHTML}
+      </div>
+    </div>
+  `;
+}
+
+function renderSectionItem(v, s){
+  const idx = v.sections.indexOf(s);
+  const tier = tierInfo(s, false);
+  const reasonsHTML = (s.reasons||[]).map(r=>`<li>${r}</li>`).join('');
+  return `
+    <div class="section-item">
+      <div class="section-item-top">
+        <div class="section-mini-thumb" style="--thumb-a:${v.colorA};--thumb-b:${v.colorB};" onclick="openWatch('${v.id}', ${idx})">
+          <div class="ts-badge">${s.time}</div>
+        </div>
+        <div class="section-item-info">
+          <div class="si-label">${s.label}</div>
+          <div class="si-time-row">
+            <span class="si-time" onclick="openWatch('${v.id}', ${idx})">${s.time} – ${s.end}</span>
+            <span class="tier-badge ${tier.key}" style="padding:2px 7px;font-size:9.5px;">${tier.label}</span>
+          </div>
+          <div class="si-summary">${s.summary}</div>
+          ${renderFeedbackRow(v.id, s.time)}
+        </div>
+      </div>
+      <div class="why-matched mini">
+        <div class="why-matched-title">Why this moment matched</div>
+        <ul>${reasonsHTML}</ul>
+      </div>
+    </div>
+  `;
+}
+
+function renderFeedbackRow(videoId, time){
+  const key = `${videoId}-${time}`;
+  const state = feedbackState[key];
+  return `
+    <div class="feedback-row" onclick="event.stopPropagation()" style="margin:6px 0 2px;">
+      <span class="fb-note">Helpful?</span>
+      <button class="fb-btn ${state==='up'?'active-up':''}" onclick="giveFeedback('${videoId}','${time}','up', this)">👍</button>
+      <button class="fb-btn ${state==='down'?'active-down':''}" onclick="giveFeedback('${videoId}','${time}','down', this)">👎</button>
+    </div>
+  `;
+}
+
+function toggleSections(videoId){
+  const panel = document.getElementById(`panel-${videoId}`);
+  const btn = document.getElementById(`toggle-${videoId}`);
+  const isOpen = panel.classList.toggle('open');
+  const count = panel.querySelectorAll('.section-item').length;
+  btn.innerHTML = isOpen ? `▴ Hide other sections` : `▾ ${count} other relevant section${count>1?'s':''}`;
+  updateFloatingWatchFull();
+}
+
+/* ============================================================
+   FLOATING "WATCH FULL VIDEO" BUTTON
+   Shows only while an *open* sections panel is scrolled into view,
+   so it's reachable no matter which section the user is looking at,
+   without introducing a nested scroll area.
+   ============================================================ */
+let floatingVideoId = null;
+
+function updateFloatingWatchFull(){
+  const fab = document.getElementById('floatingWatchFull');
+  const searchPage = document.getElementById('page-search');
+  if(!searchPage.classList.contains('active')){
+    fab.classList.remove('visible');
+    return;
+  }
+  const screen = document.getElementById('phoneScreen');
+  const screenRect = screen.getBoundingClientRect();
+  const openPanels = document.querySelectorAll('.sections-panel.open');
+
+  let match = null;
+  openPanels.forEach(panel=>{
+    if(match) return;
+    const r = panel.getBoundingClientRect();
+    const visible = r.bottom > screenRect.top + 40 && r.top < screenRect.bottom - 20;
+    if(visible) match = panel;
+  });
+
+  if(match){
+    floatingVideoId = match.id.replace('panel-','');
+    fab.classList.add('visible');
+  } else {
+    fab.classList.remove('visible');
+  }
+}
+
+function openWatchFromFloating(){
+  if(floatingVideoId) openWatch(floatingVideoId, -1);
+}
+
+let _fabRaf = null;
+document.addEventListener('DOMContentLoaded', ()=>{
+  const screen = document.getElementById('phoneScreen');
+  screen.addEventListener('scroll', ()=>{
+    if(_fabRaf) return;
+    _fabRaf = requestAnimationFrame(()=>{
+      updateFloatingWatchFull();
+      _fabRaf = null;
+    });
+  });
+});
+
+function giveFeedback(videoId, time, type, btnEl){
+  const key = `${videoId}-${time}`;
+  feedbackState[key] = feedbackState[key] === type ? null : type;
+  const row = btnEl.parentElement;
+  row.querySelectorAll('.fb-btn').forEach(b=>b.classList.remove('active-up','active-down'));
+  if(feedbackState[key]){
+    btnEl.classList.add(feedbackState[key]==='up' ? 'active-up' : 'active-down');
+    showToast(feedbackState[key]==='up'
+      ? 'Thanks — this helps confirm the ranking'
+      : 'Thanks — we\'ll use this to improve future matches');
+  }
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ============================================================
+   WATCH PAGE
+   sectionIndex: undefined -> regular-mode open, starts at 0, no highlights
+   -1 -> Answer Mode "watch full video": starts at 0, highlights/transcript shown
+   >=0 -> Answer Mode seeked open at that section
+   ============================================================ */
+function openWatch(videoId, sectionIndex){
+  const v = VIDEOS.find(vv=>vv.id===videoId);
+  showPage('page-watch');
+
+  document.getElementById('watchTitle').textContent = v.title;
+  document.getElementById('watchChannel').textContent = v.channel;
+  document.getElementById('watchViewsLine').textContent = `${v.views} · ${v.uploaded}`;
+
+  const shell = document.getElementById('playerShell');
+  shell.style.setProperty('--thumb-a', v.colorA);
+  shell.style.setProperty('--thumb-b', v.colorB);
+
+  const inAnswerMode = answerModeOn && sectionIndex !== undefined;
+
+  document.getElementById('modeOffBadge').style.display = inAnswerMode ? 'none' : 'block';
+  document.getElementById('scrubberLegend').style.display = inAnswerMode ? 'flex' : 'none';
+  document.getElementById('chipStrip').style.display = inAnswerMode ? 'flex' : 'none';
+
+  if(inAnswerMode){
+    renderScrubber(v, true);
+    renderChipStrip(v);
+    renderTranscript(v);
+    if(sectionIndex >= 0){
+      seekToSection(v, sectionIndex);
+    } else {
+      document.getElementById('playerTime').textContent = '0:00';
+      document.getElementById('playerLabelTag').style.display = 'none';
+      resetPlayhead();
+      document.getElementById('whyMomentWrap').innerHTML = `
+        <div class="why-moment">▶️ &nbsp;Playing from the beginning — Answer Mode's highlighted moments are still available on the timeline and list below.</div>
+      `;
+      document.getElementById('plainDescWrap').innerHTML = '';
+      document.querySelectorAll('.transcript-item, .chapter-chip').forEach(el=>el.classList.remove('active'));
+    }
+  } else {
+    renderScrubber(v, false);
+    document.getElementById('chipStrip').innerHTML = '';
+    document.getElementById('playerTime').textContent = '0:00';
+    document.getElementById('playerLabelTag').style.display = 'none';
+    resetPlayhead();
+    document.getElementById('whyMomentWrap').innerHTML = '';
+    document.getElementById('plainDescWrap').innerHTML = `
+      <div class="plain-desc">A full walkthrough covering exposure, color grading, and detail recovery in Lightroom. Includes before/after comparisons and downloadable presets in the description.</div>
+    `;
+    document.getElementById('transcriptWrap').innerHTML = '';
+  }
+}
+
+function resetPlayhead(){
+  const ph = document.getElementById('playhead');
+  if(ph) ph.style.left = '0%';
+}
+
+function renderScrubber(v, withHighlights){
+  const scrubber = document.getElementById('scrubber');
+  const totalSeconds = durationToSeconds(v.duration);
+
+  if(!withHighlights){
+    scrubber.innerHTML = `<div class="scrub-playhead" id="playhead" style="left:0%;"></div>`;
+    return;
+  }
+
+  const sorted = [...v.sections].sort((a,b)=>b.relevance-a.relevance);
+  const bestTime = sorted[0].time;
+  let html = '';
+  v.sections.forEach(s=>{
+    const startPct = (s.tsSeconds/totalSeconds)*100;
+    const endSeconds = timeToSeconds(s.end);
+    const widthPct = Math.max(((endSeconds - s.tsSeconds)/totalSeconds)*100, 1.6);
+    const tier = tierInfo(s, s.time===bestTime);
+    html += `<div class="scrub-segment ${tier.key}" style="left:${startPct}%;width:${widthPct}%;" onclick="seekToSectionByTime('${v.id}','${s.time}')" title="${s.time} ${s.label}"></div>`;
+  });
+  html += `<div class="scrub-playhead" id="playhead" style="left:0%;"></div>`;
+  scrubber.innerHTML = html;
+}
+
+function renderChipStrip(v){
+  const strip = document.getElementById('chipStrip');
+  const sorted = [...v.sections].sort((a,b)=>a.tsSeconds-b.tsSeconds);
+  const bestTime = [...v.sections].sort((a,b)=>b.relevance-a.relevance)[0].time;
+  strip.innerHTML = sorted.map(s=>{
+    const idx = v.sections.indexOf(s);
+    const tier = tierInfo(s, s.time===bestTime);
+    return `
+      <div class="chapter-chip" id="chip-${v.id}-${idx}" onclick="seekToSection(VIDEOS.find(vv=>vv.id==='${v.id}'), ${idx})">
+        <div class="cc-time"><span class="tier-dot ${tier.key}"></span>${s.time}</div>
+        <div class="cc-label">${s.label}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderTranscript(v){
+  const wrap = document.getElementById('transcriptWrap');
+  const sorted = [...v.sections].sort((a,b)=>a.tsSeconds-b.tsSeconds);
+  const bestTime = [...v.sections].sort((a,b)=>b.relevance-a.relevance)[0].time;
+  wrap.innerHTML = `
+    <div class="transcript-section-title">Answer Mode timeline <span class="tag">AI-generated</span></div>
+    <div id="transcriptList">
+      ${sorted.map(s=>{
+        const idx = v.sections.indexOf(s);
+        const tier = tierInfo(s, s.time===bestTime);
+        return `
+        <div class="transcript-item" id="t-${v.id}-${idx}" onclick="seekToSection(VIDEOS.find(vv=>vv.id==='${v.id}'), ${idx})">
+          <div class="t-time">${s.time}</div>
+          <div style="flex:1;">
+            <div class="t-label">${s.label} <span class="tier-badge ${tier.key}" style="padding:1px 6px;font-size:9px;margin-left:4px;">${tier.label}</span></div>
+            <div class="t-text">${s.summary}</div>
+            ${renderFeedbackRow(v.id, s.time)}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+function seekToSectionByTime(videoId, time){
+  const v = VIDEOS.find(vv=>vv.id===videoId);
+  const idx = v.sections.findIndex(s=>s.time===time);
+  seekToSection(v, idx);
+}
+
+function seekToSection(v, idx){
+  const s = v.sections[idx];
+  document.getElementById('playerTime').textContent = s.time;
+
+  const labelTag = document.getElementById('playerLabelTag');
+  labelTag.textContent = s.label;
+  labelTag.style.display = 'block';
+
+  const totalSeconds = durationToSeconds(v.duration);
+  const pct = (s.tsSeconds/totalSeconds)*100;
+  const playhead = document.getElementById('playhead');
+  if(playhead) playhead.style.left = pct + '%';
+
+  const sorted = [...v.sections].sort((a,b)=>b.relevance-a.relevance);
+  const tier = tierInfo(s, sorted[0]===s);
+  document.getElementById('whyMomentWrap').innerHTML = `
+    <div class="why-moment">💡 &nbsp;<span class="wm-label">${s.label}</span> (${s.time}–${s.end}) — <strong>${tier.label}</strong> for your search. ${s.summary}</div>
+  `;
+
+  document.querySelectorAll('.transcript-item, .chapter-chip').forEach(el=>el.classList.remove('active'));
+  const activeEl = document.getElementById(`t-${v.id}-${idx}`);
+  if(activeEl){
+    activeEl.classList.add('active');
+    activeEl.scrollIntoView({block:'center', behavior:'smooth'});
+  }
+  const activeChip = document.getElementById(`chip-${v.id}-${idx}`);
+  if(activeChip){
+    activeChip.classList.add('active');
+    activeChip.scrollIntoView({inline:'center', behavior:'smooth'});
+  }
+}
+
+function durationToSeconds(dur){
+  const parts = dur.split(':').map(Number);
+  if(parts.length===3) return parts[0]*3600+parts[1]*60+parts[2];
+  return parts[0]*60+parts[1];
+}
+function timeToSeconds(t){
+  const parts = t.split(':').map(Number);
+  if(parts.length===3) return parts[0]*3600+parts[1]*60+parts[2];
+  return parts[0]*60+parts[1];
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.getElementById('searchInput').addEventListener('keydown', e=>{
+  if(e.key==='Enter') runSearch();
+});
+document.getElementById('searchInput').addEventListener('click', runSearch);
+renderHomeFeed();
+</script>
+</body>
+</html>
