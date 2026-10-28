@@ -25,13 +25,20 @@ Every project here follows the same discipline: **start from a real user problem
 | [YouTube Answer Mode](#youtube-answer-mode--search-that-finds-the-moment) | New YouTube Search feature that jumps to the exact moment that answers a question | Moment-level ranking, explainable matches, feedback loop | 3-phase research · PRD · case study · prototype |
 | [Alcove](#alcove--an-emotionally-intelligent-ai-companion) | Voice-first AI companion that remembers your story | Long-term memory, context assembly, safety layer | PRD · investor deck · prototype |
 | [IITM Knowledge Assistant](#iitm-knowledge-assistant--citation-first-rag) | Citation-first RAG assistant for IIT Madras student information | Hybrid retrieval, reranking, grounding gate, evals | PRD · live prototype |
-| [Execution Policy Intelligence](#execution-policy-intelligence--lseg-hackathon-idea) | LSEG hackathon proposal for evidence-backed FX execution policy management | "Statistics determine, AI explains, human decides" | Leadership pitch deck |
+| [Execution Policy Intelligence](#execution-policy-intelligence--lseg-hackathon-idea) | LSEG hackathon proposal for evidence-backed FX execution policy management | "Statistics determine, AI explains, human decides" | Pitch deck |
 
 ---
 
 ## ResearchOS — AI research-management suite
 
 *Buildathon 2026 · individual entry · designed, built and shipped solo*
+
+<p align="center">
+  <a href="https://research-os-beige-five.vercel.app">
+    <img src="media/researchos-demo.gif" alt="ResearchOS demo: idea check with real papers, research plan board, results, dashboard and AI-proposed next steps" width="840">
+  </a>
+  <br><sub>30-second tour of the live app. Click to try it yourself.</sub>
+</p>
 
 **Problem.** Researchers juggle Google Scholar, spreadsheets, notebooks and weekly supervisor meetings, and nothing connects the idea, the plan and the results. Months of work can go by with no clear signal of whether a project is on track, or whether the idea was already published.
 
@@ -49,7 +56,6 @@ Every project here follows the same discipline: **start from a real user problem
 
 📂 [`ResearchOS Research Management Suite/`](ResearchOS%20Research%20Management%20Suite/)
 - 🚀 Live app: [research-os-beige-five.vercel.app](https://research-os-beige-five.vercel.app)
-- 💻 Code: [github.com/worldofnisho-471/ResearchOS](https://github.com/worldofnisho-471/ResearchOS)
 - 📊 [Pitch deck](ResearchOS%20Research%20Management%20Suite/ResearchOS%20Pitch%20Deck.pdf)
 - 🗣️ [User feedback and actions taken](ResearchOS%20Research%20Management%20Suite/User%20Feedback%20For%20ResearchOS%20And%20Actions%20Taken.pdf)
 - 🖥️ [Clickable design prototype](https://worldofnisho-471.github.io/Product-Portfolio/ResearchOS%20Research%20Management%20Suite/ResearchOS.html): the five screens without live AI (use the live app for that)
@@ -61,6 +67,13 @@ Every project here follows the same discipline: **start from a real user problem
 ## YouTube Answer Mode — search that finds the moment
 
 *AI Product Management course (HelloPM) · problem discovery → user research → solution → PRD*
+
+<p align="center">
+  <a href="https://worldofnisho-471.github.io/Product-Portfolio/YouTube%20Answer%20Mode%20Feature/YouTube-Answer-Mode-Full-Prototype.html">
+    <img src="media/youtube-answer-mode-demo.gif" alt="YouTube Answer Mode prototype: turning on Answer Mode, ranked and explained moments, per-moment feedback, annotated player scrubber and AI-generated timeline" width="360">
+  </a>
+  <br><sub>Prototype tour (1.5× speed): turn on Answer Mode, see ranked moments with reasons, jump to a timestamp. Click to try it yourself.</sub>
+</p>
 
 **Problem.** YouTube Search finds the video, but rarely the moment. Knowledge seekers open several videos, skip intros and scrub long timelines to find one answer. Primary research (24 interviews, a survey of 60 users and 16 screen-share sessions) showed:
 - **21 of 26** participants opened multiple videos before finding an answer.
@@ -96,6 +109,13 @@ Every project here follows the same discipline: **start from a real user problem
 
 *AI Product Management course (HelloPM)*
 
+<p align="center">
+  <a href="https://worldofnisho-471.github.io/Product-Portfolio/Alcove%20AI%20Companion/Alcove-Companion_AI_Full_Prototype.html">
+    <img src="media/alcove-demo.gif" alt="Alcove prototype: onboarding, voice and text conversation, Our Story, Growth, weekly letter, memory and privacy controls" width="360">
+  </a>
+  <br><sub>Prototype tour (2× speed): onboarding, conversation, Our Story, Growth, memory controls. Click to try it yourself.</sub>
+</p>
+
 **Positioning:** *Someone who remembers you.*
 
 **Problem.** People talk to AI every day, but the relationship resets between sessions. Today's assistants don't carry forward a user's goals, important events, past struggles or how they've changed.
@@ -126,6 +146,13 @@ Every project here follows the same discipline: **start from a real user problem
 
 *AI Product Management course (HelloPM)*
 
+<p align="center">
+  <a href="https://rag-whisperer-36.lovable.app/">
+    <img src="media/iitm-knowledge-assistant-demo.gif" alt="IITM Knowledge Assistant prototype: a cited answer showing which circular supersedes the regulation, a follow-up question, and an abstention when no authoritative source exists" width="760">
+  </a>
+  <br><sub>Prototype tour (1.5× speed): a cited answer where a newer circular overrides the regulation, a follow-up, then a refusal to guess when no authoritative source exists. Click to try it yourself.</sub>
+</p>
+
 **Problem.** IIT Madras students know what they need but not which page, circular or office owns the answer. One question can mean several searches, dense PDFs, and checking whether a newer circular overrides the rule.
 
 **Product thesis.** An information-retrieval product first and a chatbot second. It shows source authority, freshness, uncertainty and escalation. The MVP covers public institutional sources only: no transactions and no private student records.
@@ -152,7 +179,7 @@ Every project here follows the same discipline: **start from a real user problem
 
 ## Execution Policy Intelligence — LSEG hackathon idea
 
-*Internal product proposal for leadership review · October 2026*
+*Hackathon product proposal · October 2026*
 
 **Problem.** FX desks can analyse execution, but can they *continuously prove* that their execution policies still work? Evidence ends up scattered across TCA outputs, notebooks, spreadsheets and committee minutes.
 
@@ -168,7 +195,7 @@ Every project here follows the same discipline: **start from a real user problem
 - **Recommendation:** validate with customers before scaling.
 
 📂 [`LSEG Hackathon Idea/`](LSEG%20Hackathon%20Idea/)
-- 📊 [Leadership pitch deck](LSEG%20Hackathon%20Idea/FxAll_Execution_Policy_Intelligence_Leadership_Demo.pdf)
+- 📊 [Pitch deck](LSEG%20Hackathon%20Idea/FxAll_Execution_Policy_Intelligence_Leadership_Demo.pdf)
 
 > Scenario data in the deck is illustrative.
 
@@ -194,3 +221,13 @@ Every project here follows the same discipline: **start from a real user problem
 - 📚 AI Product Manager Course, HelloPM (in progress)
 
 🌐 [Portfolio website](https://worldofnisho-471.github.io/new_repo/nisho-dasgupta.html) · 💻 [GitHub](https://github.com/worldofnisho-471) · ✉️ sauravdasgupta377@gmail.com
+
+---
+
+## License
+
+© 2026 Saurav Dasgupta. **All rights reserved.**
+
+This portfolio is shared for viewing only. No part of it may be copied, modified, distributed or reused, including in coursework, job applications or other portfolios, without my written permission. Product and company names mentioned belong to their respective owners and are used for illustrative purposes only. See [LICENSE](LICENSE) for the full terms.
+
+For permission requests, email sauravdasgupta377@gmail.com.
