@@ -214,7 +214,7 @@ Every project here follows the same discipline: **start from a real user problem
 
 ## About me
 
-12+ years in software quality and delivery across LSEG, NatWest (via Publicis Sapient), Clarivate and Thomson Reuters, now moving into AI product management.
+12+ years in software quality and delivery across LSEG, NatWest (via Publicis Sapient), Clarivate, Thomson Reuters and Ullink, now moving into AI product management.
 
 - 🎓 MBA, Product Management (Woolf)
 - 🏅 Certified Scrum Product Owner (CSPO)
