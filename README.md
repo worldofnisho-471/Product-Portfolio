@@ -2,7 +2,7 @@
 
 **AI Product Manager · CSPO · MBA, Product Management**
 
-12+ years shipping software at London Stock Exchange Group, NatWest (via Publicis Sapient), Clarivate and Thomson Reuters, now building AI products. Every project here starts from a real user problem, grounds it in evidence, defines success, designs the AI to be trusted, and ships something you can click.
+12+ years shipping software at London Stock Exchange Group, NatWest (via Publicis Sapient), Clarivate, Thomson Reuters and Ullink, now building AI products. Every project here starts from a real user problem, grounds it in evidence, defines success, designs the AI to be trusted, and ships something you can click.
 
 > **⏱ Short on time? Start here:**
 > 1. **[Alcove](#alcove)**: a voice-first AI companion with long-term memory and a safety layer against dependency. [Click through the prototype](https://worldofnisho-471.github.io/Product-Portfolio/Alcove%20AI%20Companion/Alcove-Companion_AI_Full_Prototype.html).
