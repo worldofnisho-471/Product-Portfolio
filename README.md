@@ -183,7 +183,7 @@ Every project here follows the same discipline: **start from a real user problem
 
 <p align="center">
   <a href="LSEG%20Hackathon%20Idea/FxAll_Execution_Policy_Intelligence_Leadership_Demo.pdf">
-    <img src="media/lseg-execution-policy-intelligence.png" alt="Slide: Statistics determine. AI explains. Human decides. A deterministic engine sets policy status, AI explains the evidence, and quants decide; AI never changes policies on its own." width="800">
+    <img src="media/lseg-fxall-execution-policy-intelligence.png" alt="Slide: Statistics determine. AI explains. Human decides. A deterministic engine sets policy status, AI explains the evidence, and quants decide; AI never changes policies on its own." width="800">
   </a>
   <br><sub>The core design principle, from the pitch deck. Click to open the full 12-slide deck.</sub>
 </p>
