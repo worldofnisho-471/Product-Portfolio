@@ -181,6 +181,13 @@ Every project here follows the same discipline: **start from a real user problem
 
 *Hackathon product proposal · October 2026*
 
+<p align="center">
+  <a href="LSEG%20Hackathon%20Idea/FxAll_Execution_Policy_Intelligence_Leadership_Demo.pdf">
+    <img src="media/lseg-execution-policy-intelligence.png" alt="Slide: Statistics determine. AI explains. Human decides. A deterministic engine sets policy status, AI explains the evidence, and quants decide; AI never changes policies on its own." width="800">
+  </a>
+  <br><sub>The core design principle, from the pitch deck. Click to open the full 12-slide deck.</sub>
+</p>
+
 **Problem.** FX desks can analyse execution, but can they *continuously prove* that their execution policies still work? Evidence ends up scattered across TCA outputs, notebooks, spreadsheets and committee minutes.
 
 **Proposal.** An **Execution Policy Register** powered by Tradefeedr evidence. It tracks each policy's rationale, supporting evidence, review triggers and decision history, building an institutional memory of why policies were kept, changed or retired.
@@ -214,7 +221,7 @@ Every project here follows the same discipline: **start from a real user problem
 
 ## About me
 
-12+ years in software quality and delivery across LSEG, NatWest (via Publicis Sapient), Clarivate, Thomson Reuters and Ullink, now moving into AI product management.
+12+ years in software quality and delivery across LSEG, NatWest (via Publicis Sapient), Clarivate and Thomson Reuters, now moving into AI product management.
 
 - 🎓 MBA, Product Management (Woolf)
 - 🏅 Certified Scrum Product Owner (CSPO)
