@@ -1,8 +1,8 @@
-# Saurav — Product Portfolio
+# Saurrav — Product Portfolio
 
 **AI Product Manager · CSPO · MBA, Product Management**
 
-12+ years shipping software at London Stock Exchange Group, NatWest (via Publicis Sapient), Clarivate, Thomson Reuters and BNP Paribas, now building AI products. Every project here starts from a real user problem, grounds it in evidence, defines success, designs the AI to be trusted, and ships something you can click.
+12+ years shipping software across an exchange operator, global banks, consultancies and a publicly listed data, analytics and research company, including London Stock Exchange Group, NatWest (via Publicis Sapient), Thomson Reuters and BNP Paribas, now building AI products. Every project here starts from a real user problem, grounds it in evidence, defines success, designs the AI to be trusted, and ships something you can click.
 
 > **⏱ Short on time? Start here:**
 > 1. **[Alcove](#alcove)**: a voice-first AI companion with long-term memory and a safety layer against dependency. [Click through the prototype](https://worldofnisho-471.github.io/Product-Portfolio/Alcove%20AI%20Companion/Alcove-Companion_AI_Full_Prototype.html).
@@ -138,10 +138,13 @@
 
 ## About me
 
-MBA in Product Management (Woolf) · Certified Scrum Product Owner · AI Product Manager course, HelloPM (in progress)
+**Credentials**
+- 🏅 Certified Scrum Product Owner (CSPO), Scrum Alliance, active until January 2027 · [Verify ↗](https://certification.scrumalliance.org/accounts/1720661/certifications/2036538)
+- 🎓 MBA in Product Management, Woolf (in progress)
+- 📚 AI Product Manager Course, HelloPM (in progress)
 
-💻 [GitHub](https://github.com/worldofnisho-471) · ✉️ sauravdasgupta377@gmail.com
+💻 [GitHub](https://github.com/worldofnisho-471) · ✉️ saurrav.dasgupta@outlook.com
 
 ---
 
-<sub>© 2026 Saurav Dasgupta. All rights reserved. This portfolio is shared for viewing only; no part of it may be copied, modified or reused without written permission. Product and company names belong to their respective owners. See [LICENSE](LICENSE).</sub>
+© 2026 Saurrav Dasgupta. All rights reserved. This portfolio is shared for viewing only; no part of it may be copied, modified or reused without written permission. Product and company names belong to their respective owners. See [LICENSE](LICENSE).
